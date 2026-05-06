@@ -1,2 +1,9 @@
 .DS_Store
 .env
+
+# Terraform
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.tfvars.example
