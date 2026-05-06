@@ -7,6 +7,12 @@
 *.tfstate.*
 *.tfvars
 !*.tfvars.example
+**/build/
+*.zip
+
+# Python
+__pycache__/
+*.py[cod]
 
 # Go build artifacts
 cli/trustssh

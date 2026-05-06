@@ -99,3 +99,62 @@ variable "dynamodb_point_in_time_recovery" {
   type        = bool
   default     = false
 }
+
+variable "ca_private_key_parameter_name" {
+  description = "Name of the SSM SecureString parameter that will hold the OpenSSH CA private key."
+  type        = string
+  default     = "/trustssh/ca/private-key"
+}
+
+variable "ca_private_key_value" {
+  description = "OpenSSH CA private key material to store in SSM SecureString. Set this in terraform.tfvars only."
+  type        = string
+  sensitive   = true
+}
+
+variable "ca_public_key_parameter_name" {
+  description = "Name of the SSM String parameter that stores the OpenSSH CA public key for reference."
+  type        = string
+  default     = "/trustssh/ca/public-key"
+}
+
+variable "ca_public_key_value" {
+  description = "OpenSSH CA public key material to store in SSM String."
+  type        = string
+}
+
+variable "signer_lambda_role_name" {
+  description = "Name of the IAM role used by the signer Lambda."
+  type        = string
+  default     = "trustssh-signer-role"
+}
+
+variable "signer_lambda_function_name" {
+  description = "Name of the signer Lambda function."
+  type        = string
+  default     = "trustssh-signer"
+}
+
+variable "api_gateway_name" {
+  description = "Name of the TrustSSH HTTP API."
+  type        = string
+  default     = "trustssh-api"
+}
+
+variable "issue_certificate_route_path" {
+  description = "HTTP API route path for requesting a certificate."
+  type        = string
+  default     = "/issue-cert"
+}
+
+variable "default_certificate_duration_seconds" {
+  description = "Default certificate lifetime requested by the CLI."
+  type        = number
+  default     = 1800
+}
+
+variable "max_certificate_duration_seconds" {
+  description = "Global maximum certificate lifetime for the MVP."
+  type        = number
+  default     = 14400
+}
