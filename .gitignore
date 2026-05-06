@@ -7,3 +7,6 @@
 *.tfstate.*
 *.tfvars
 !*.tfvars.example
+
+# Go build artifacts
+cli/trustssh
