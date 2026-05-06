@@ -75,3 +75,27 @@ variable "api_subdomain" {
   type        = string
   default     = "trustssh"
 }
+
+variable "dynamodb_user_mapping_table_name" {
+  description = "Name of the DynamoDB table that maps Cognito users to allowed SSH principals."
+  type        = string
+  default     = "trustssh-user-mappings"
+}
+
+variable "dynamodb_audit_events_table_name" {
+  description = "Name of the DynamoDB table that will store certificate issuance audit events."
+  type        = string
+  default     = "trustssh-audit-events"
+}
+
+variable "dynamodb_deletion_protection" {
+  description = "Whether DynamoDB deletion protection is enabled for TrustSSH tables."
+  type        = bool
+  default     = false
+}
+
+variable "dynamodb_point_in_time_recovery" {
+  description = "Whether DynamoDB point-in-time recovery is enabled for TrustSSH tables."
+  type        = bool
+  default     = false
+}

@@ -32,3 +32,23 @@ output "api_base_url" {
   description = "API base URL"
   value       = "https://${var.api_subdomain}.${var.base_domain}"
 }
+
+output "dynamodb_user_mapping_table" {
+  description = "DynamoDB table for Cognito-user-to-SSH-principal mappings."
+  value       = module.dynamodb.user_mapping_table_name
+}
+
+output "dynamodb_user_mapping_table_arn" {
+  description = "ARN of the DynamoDB user mapping table."
+  value       = module.dynamodb.user_mapping_table_arn
+}
+
+output "dynamodb_audit_table" {
+  description = "DynamoDB table for certificate issuance audit events."
+  value       = module.dynamodb.audit_events_table_name
+}
+
+output "dynamodb_audit_table_arn" {
+  description = "ARN of the DynamoDB audit events table."
+  value       = module.dynamodb.audit_events_table_arn
+}

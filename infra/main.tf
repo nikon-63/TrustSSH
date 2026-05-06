@@ -26,3 +26,13 @@ module "cognito" {
   id_token_validity      = var.cognito_id_token_validity_minutes
   refresh_token_validity = var.cognito_refresh_token_validity_days
 }
+
+module "dynamodb" {
+  source = "./modules/dynamodb"
+
+  project_name            = var.project_name
+  user_mapping_table_name = var.dynamodb_user_mapping_table_name
+  audit_events_table_name = var.dynamodb_audit_events_table_name
+  deletion_protection     = var.dynamodb_deletion_protection
+  point_in_time_recovery  = var.dynamodb_point_in_time_recovery
+}
