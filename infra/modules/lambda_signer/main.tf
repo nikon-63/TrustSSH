@@ -2,6 +2,7 @@ data "archive_file" "package" {
   type        = "zip"
   source_dir  = var.source_dir
   output_path = "${path.module}/${var.function_name}.zip"
+  excludes    = ["test_*.py", "__pycache__/*"]
 }
 
 resource "aws_lambda_function" "this" {

@@ -66,7 +66,7 @@ module "lambda_signer" {
 
   project_name                  = var.project_name
   function_name                 = var.signer_lambda_function_name
-  source_dir                    = "${path.module}/../lambda/signer"
+  source_dir                    = "${path.module}/../lambda/signer/build/package"
   role_arn                      = module.iam.signer_role_arn
   user_mapping_table_name       = module.dynamodb.user_mapping_table_name
   audit_events_table_name       = module.dynamodb.audit_events_table_name
