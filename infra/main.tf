@@ -100,5 +100,5 @@ module "route53" {
   hosted_zone_id = var.hosted_zone_id
   domain_name    = "${var.api_subdomain}.${var.base_domain}"
   api_id         = module.api_gateway.api_id
-  stage_name     = "$default"
+  stage_name     = module.api_gateway.default_stage_name
 }
