@@ -42,6 +42,9 @@ func Load() (Config, error) {
 
 	cfg.CognitoDomain = strings.TrimRight(cfg.CognitoDomain, "/")
 	cfg.APIBaseURL = strings.TrimRight(cfg.APIBaseURL, "/")
+	if cfg.DefaultDurationSeconds == 0 {
+		cfg.DefaultDurationSeconds = 1800
+	}
 	return cfg, nil
 }
 
@@ -59,6 +62,10 @@ func ConfigPath() string {
 
 func TokensPath() string {
 	return filepath.Join(TrustSSHDir(), "tokens.json")
+}
+
+func CertificatePath() string {
+	return filepath.Join(TrustSSHDir(), "id_ed25519-cert.pub")
 }
 
 func ensureTrustSSHDir() error {

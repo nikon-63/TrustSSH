@@ -20,6 +20,9 @@ func TestEnsureKeyPairCreatesFilesWithStrictPermissions(t *testing.T) {
 	if keyPair.PublicKeyPath != filepath.Join(dir, "id_ed25519.pub") {
 		t.Fatalf("PublicKeyPath = %q", keyPair.PublicKeyPath)
 	}
+	if keyPair.CertificatePath != filepath.Join(dir, "id_ed25519-cert.pub") {
+		t.Fatalf("CertificatePath = %q", keyPair.CertificatePath)
+	}
 
 	assertMode(t, dir, 0700)
 	assertMode(t, keyPair.PrivateKeyPath, 0600)
@@ -31,6 +34,27 @@ func TestEnsureKeyPairCreatesFilesWithStrictPermissions(t *testing.T) {
 	}
 	if len(publicKey) == 0 {
 		t.Fatal("public key is empty")
+	}
+}
+
+func TestSaveCertificate(t *testing.T) {
+	dir := t.TempDir()
+	keyPair, err := EnsureKeyPair(dir)
+	if err != nil {
+		t.Fatalf("EnsureKeyPair returned error: %v", err)
+	}
+
+	if err := SaveCertificate(keyPair, "ssh-ed25519-cert-v01@openssh.com AAAA trustssh"); err != nil {
+		t.Fatalf("SaveCertificate returned error: %v", err)
+	}
+
+	assertMode(t, keyPair.CertificatePath, 0644)
+	cert, err := os.ReadFile(keyPair.CertificatePath)
+	if err != nil {
+		t.Fatalf("read cert: %v", err)
+	}
+	if string(cert) != "ssh-ed25519-cert-v01@openssh.com AAAA trustssh\n" {
+		t.Fatalf("certificate contents = %q", string(cert))
 	}
 }
 

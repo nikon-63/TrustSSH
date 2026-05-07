@@ -13,10 +13,12 @@ import (
 )
 
 type KeyPair struct {
-	PrivateKeyPath        string
-	PublicKeyPath         string
-	PrivateKeyDisplayPath string
-	PublicKeyDisplayPath  string
+	PrivateKeyPath         string
+	PublicKeyPath          string
+	CertificatePath        string
+	PrivateKeyDisplayPath  string
+	PublicKeyDisplayPath   string
+	CertificateDisplayPath string
 }
 
 func EnsureDefaultKeyPair() (KeyPair, error) {
@@ -33,6 +35,7 @@ func EnsureKeyPair(dir string) (KeyPair, error) {
 
 	privateKeyPath := filepath.Join(dir, "id_ed25519")
 	publicKeyPath := privateKeyPath + ".pub"
+	certificatePath := privateKeyPath + "-cert.pub"
 
 	if _, err := os.Stat(privateKeyPath); err != nil {
 		if !errors.Is(err, os.ErrNotExist) {
@@ -66,11 +69,36 @@ func EnsureKeyPair(dir string) (KeyPair, error) {
 	}
 
 	return KeyPair{
-		PrivateKeyPath:        privateKeyPath,
-		PublicKeyPath:         publicKeyPath,
-		PrivateKeyDisplayPath: displayPath(privateKeyPath),
-		PublicKeyDisplayPath:  displayPath(publicKeyPath),
+		PrivateKeyPath:         privateKeyPath,
+		PublicKeyPath:          publicKeyPath,
+		CertificatePath:        certificatePath,
+		PrivateKeyDisplayPath:  displayPath(privateKeyPath),
+		PublicKeyDisplayPath:   displayPath(publicKeyPath),
+		CertificateDisplayPath: displayPath(certificatePath),
 	}, nil
+}
+
+func ReadPublicKey(keyPair KeyPair) (string, error) {
+	data, err := os.ReadFile(keyPair.PublicKeyPath)
+	if err != nil {
+		return "", fmt.Errorf("read SSH public key: %w", err)
+	}
+	publicKey := strings.TrimSpace(string(data))
+	if publicKey == "" {
+		return "", fmt.Errorf("SSH public key is empty: %s", keyPair.PublicKeyPath)
+	}
+	return publicKey, nil
+}
+
+func SaveCertificate(keyPair KeyPair, certificate string) error {
+	certificate = strings.TrimSpace(certificate)
+	if certificate == "" {
+		return fmt.Errorf("certificate is empty")
+	}
+	if err := os.WriteFile(keyPair.CertificatePath, []byte(certificate+"\n"), 0644); err != nil {
+		return fmt.Errorf("write SSH certificate: %w", err)
+	}
+	return os.Chmod(keyPair.CertificatePath, 0644)
 }
 
 func generateEd25519Key(privateKeyPath string) error {
