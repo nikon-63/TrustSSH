@@ -9,6 +9,7 @@
 !*.tfvars.example
 **/build/
 *.zip
+infra/backend.tf
 
 # Python
 __pycache__/

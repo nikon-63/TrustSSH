@@ -25,7 +25,7 @@ variable "cognito_app_client_name" {
 variable "cognito_domain_prefix" {
   description = "Cognito Hosted UI domain prefix. This must be globally unique within the AWS region."
   type        = string
-  default     = "trustssh-cli-dev"
+  default     = "trustssh-cli-prod"
 }
 
 variable "callback_url" {
