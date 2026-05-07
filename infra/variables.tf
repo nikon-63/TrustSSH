@@ -7,7 +7,7 @@ variable "aws_region" {
 variable "project_name" {
   description = "Short project name used for tagging and resource names."
   type        = string
-  default     = "trustssh"
+  default     = "TrustSSH"
 }
 
 variable "cognito_user_pool_name" {

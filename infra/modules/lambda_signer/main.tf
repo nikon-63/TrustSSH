@@ -28,4 +28,15 @@ resource "aws_lambda_function" "this" {
   tags = {
     Project = var.project_name
   }
+
+  depends_on = [aws_cloudwatch_log_group.this]
+}
+
+resource "aws_cloudwatch_log_group" "this" {
+  name              = "/aws/lambda/${var.function_name}"
+  retention_in_days = 30
+
+  tags = {
+    Project = var.project_name
+  }
 }
