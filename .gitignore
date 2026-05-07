@@ -1,2 +1,19 @@
 .DS_Store
 .env
+
+# Terraform
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.tfvars.example
+**/build/
+*.zip
+infra/backend.tf
+
+# Python
+__pycache__/
+*.py[cod]
+
+# Go build artifacts
+cli/trustssh
