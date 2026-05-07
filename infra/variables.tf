@@ -61,13 +61,11 @@ variable "cognito_refresh_token_validity_days" {
 variable "hosted_zone_id" {
   description = "Existing Route 53 hosted zone ID."
   type        = string
-  default     = ""
 }
 
 variable "base_domain" {
   description = "Base domain for TrustSSH endpoints."
   type        = string
-  default     = ""
 }
 
 variable "api_subdomain" {

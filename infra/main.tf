@@ -86,3 +86,13 @@ module "api_gateway" {
   signer_function_name = module.lambda_signer.function_name
   signer_invoke_arn    = module.lambda_signer.invoke_arn
 }
+
+module "route53" {
+  source = "./modules/route53"
+
+  project_name   = var.project_name
+  hosted_zone_id = var.hosted_zone_id
+  domain_name    = "${var.api_subdomain}.${var.base_domain}"
+  api_id         = module.api_gateway.api_id
+  stage_name     = "$default"
+}

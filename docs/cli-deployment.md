@@ -76,6 +76,7 @@ terraform output -raw cognito_domain
 terraform output -raw cognito_client_id
 terraform output -raw callback_url
 terraform output -raw api_base_url
+terraform output -raw api_gateway_default_endpoint
 ```
 
 Map them into `config.json`:

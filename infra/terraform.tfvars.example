@@ -5,6 +5,5 @@ replace-with-real-ca-private-key
 EOT
 ca_public_key_value = "ssh-ed25519 AAAAreplace-with-real-ca-public-key trustssh-ca"
 
-# Needed for later use when route53 is added
-# hosted_zone_id = ""
-# base_domain    = ""
+hosted_zone_id = ""
+base_domain    = ""

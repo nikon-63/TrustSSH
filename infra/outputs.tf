@@ -29,7 +29,12 @@ output "cognito_domain" {
 }
 
 output "api_base_url" {
-  description = "API Gateway base URL."
+  description = "Custom API base URL."
+  value       = module.route53.api_base_url
+}
+
+output "api_gateway_default_endpoint" {
+  description = "Default execute-api endpoint for the HTTP API."
   value       = module.api_gateway.api_endpoint
 }
 
@@ -55,7 +60,7 @@ output "dynamodb_audit_table_arn" {
 
 output "issue_certificate_url" {
   description = "URL for the certificate issuance route."
-  value       = "${module.api_gateway.api_endpoint}${var.issue_certificate_route_path}"
+  value       = "${module.route53.api_base_url}${var.issue_certificate_route_path}"
 }
 
 output "signer_lambda_function_name" {
@@ -71,4 +76,9 @@ output "ca_private_key_parameter_name" {
 output "ca_public_key_parameter_name" {
   description = "SSM parameter name for the OpenSSH CA public key."
   value       = module.ssm.ca_public_key_parameter_name
+}
+
+output "api_custom_domain_name" {
+  description = "Custom domain name for the TrustSSH API."
+  value       = module.route53.domain_name
 }
