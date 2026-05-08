@@ -102,3 +102,20 @@ module "route53" {
   api_id         = module.api_gateway.api_id
   stage_name     = module.api_gateway.default_stage_name
 }
+
+module "static_config" {
+  source = "./modules/static_config"
+
+  project_name = var.project_name
+  bucket_name  = var.static_content_bucket_name
+  api_id       = module.api_gateway.api_id
+  config_json = jsonencode({
+    region                   = var.aws_region
+    cognito_domain           = module.cognito.hosted_ui_domain
+    client_id                = module.cognito.app_client_id
+    redirect_uri             = var.callback_url
+    api_base_url             = module.route53.api_base_url
+    default_duration_seconds = var.default_certificate_duration_seconds
+  })
+  public_key = var.ca_public_key_value
+}

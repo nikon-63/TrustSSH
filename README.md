@@ -2,16 +2,19 @@
 
 SSH login broker for issuing short-lived OpenSSH user certificates using AWS Cognito and Lambda.
 
-The GO CLI provides `trustssh login` and `trustssh logout` commands that work with the deployed AWS infrastructure to authenticate users, and sign short-lived SSH certificates for use with OpenSSH. 
+The Go CLI provides `trustssh configure`, `trustssh login`, and `trustssh logout` commands that work with the deployed AWS infrastructure to authenticate users, and sign short-lived SSH certificates for use with OpenSSH.
 
 TrustSSH does not upload the user's SSH private key. The CLI signs nothing locally and sends only the user's SSH public key to the signing API.
 
 ## Current CLI Commands
 
 ```bash
+trustssh configure <base-url>
 trustssh login
 trustssh logout
 ```
+
+`trustssh configure <base-url>` downloads `<base-url>/config.json` and saves it to `~/.trustssh/config.json`.
 
 `trustssh login`:
 

@@ -63,6 +63,21 @@ output "issue_certificate_url" {
   value       = "${module.route53.api_base_url}${var.issue_certificate_route_path}"
 }
 
+output "cli_config_url" {
+  description = "URL for the static TrustSSH CLI configuration document."
+  value       = "${module.route53.api_base_url}/config.json"
+}
+
+output "static_content_bucket" {
+  description = "S3 bucket storing static public TrustSSH content."
+  value       = module.static_config.bucket_name
+}
+
+output "ca_public_key_url" {
+  description = "URL for the public OpenSSH CA public key."
+  value       = "${module.route53.api_base_url}/public_key.txt"
+}
+
 output "signer_lambda_function_name" {
   description = "Name of the signer Lambda function."
   value       = module.lambda_signer.function_name
