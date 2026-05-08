@@ -4,9 +4,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
+	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 )
 
 type Config struct {
@@ -32,20 +36,68 @@ func Load() (Config, error) {
 		return Config{}, fmt.Errorf("read config: %w", err)
 	}
 
-	var cfg Config
-	if err := json.Unmarshal(data, &cfg); err != nil {
+	cfg, err := Parse(data)
+	if err != nil {
 		return Config{}, fmt.Errorf("parse config: %w", err)
 	}
-	if err := cfg.validate(); err != nil {
-		return Config{}, err
+	return cfg, nil
+}
+
+func FetchRemote(baseURL string) (Config, string, error) {
+	configURL, err := remoteConfigURL(baseURL)
+	if err != nil {
+		return Config{}, "", err
 	}
 
-	cfg.CognitoDomain = strings.TrimRight(cfg.CognitoDomain, "/")
-	cfg.APIBaseURL = strings.TrimRight(cfg.APIBaseURL, "/")
-	if cfg.DefaultDurationSeconds == 0 {
-		cfg.DefaultDurationSeconds = 1800
+	client := &http.Client{Timeout: 15 * time.Second}
+	resp, err := client.Get(configURL)
+	if err != nil {
+		return Config{}, "", fmt.Errorf("fetch remote config: %w", err)
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(io.LimitReader(resp.Body, 1<<20))
+	if err != nil {
+		return Config{}, "", fmt.Errorf("read remote config: %w", err)
+	}
+	if resp.StatusCode < 200 || resp.StatusCode > 299 {
+		return Config{}, "", fmt.Errorf("fetch remote config: status %d", resp.StatusCode)
+	}
+
+	cfg, err := Parse(body)
+	if err != nil {
+		return Config{}, "", fmt.Errorf("parse remote config: %w", err)
+	}
+	return cfg, configURL, nil
+}
+
+func Parse(data []byte) (Config, error) {
+	var cfg Config
+	if err := json.Unmarshal(data, &cfg); err != nil {
+		return Config{}, err
+	}
+	if err := cfg.normalizeAndValidate(); err != nil {
+		return Config{}, err
 	}
 	return cfg, nil
+}
+
+func Save(cfg Config) error {
+	if err := cfg.normalizeAndValidate(); err != nil {
+		return err
+	}
+	if err := ensureTrustSSHDir(); err != nil {
+		return err
+	}
+
+	data, err := json.MarshalIndent(cfg, "", "  ")
+	if err != nil {
+		return fmt.Errorf("encode config: %w", err)
+	}
+	if err := os.WriteFile(ConfigPath(), append(data, '\n'), 0600); err != nil {
+		return fmt.Errorf("write config: %w", err)
+	}
+	return os.Chmod(ConfigPath(), 0600)
 }
 
 func TrustSSHDir() string {
@@ -89,8 +141,45 @@ func (c Config) validate() error {
 	if c.RedirectURI == "" {
 		missing = append(missing, "redirect_uri")
 	}
+	if c.APIBaseURL == "" {
+		missing = append(missing, "api_base_url")
+	}
 	if len(missing) > 0 {
 		return fmt.Errorf("config missing required field(s): %s", strings.Join(missing, ", "))
 	}
 	return nil
+}
+
+func (c *Config) normalizeAndValidate() error {
+	if err := c.validate(); err != nil {
+		return err
+	}
+	c.CognitoDomain = strings.TrimRight(c.CognitoDomain, "/")
+	c.APIBaseURL = strings.TrimRight(c.APIBaseURL, "/")
+	if c.DefaultDurationSeconds == 0 {
+		c.DefaultDurationSeconds = 1800
+	}
+	return nil
+}
+
+func remoteConfigURL(baseURL string) (string, error) {
+	if !strings.Contains(baseURL, "://") {
+		baseURL = "https://" + baseURL
+	}
+
+	parsed, err := url.Parse(baseURL)
+	if err != nil {
+		return "", fmt.Errorf("parse base URL: %w", err)
+	}
+	if parsed.Scheme != "https" && parsed.Scheme != "http" {
+		return "", fmt.Errorf("base URL must use https or http")
+	}
+	if parsed.Host == "" {
+		return "", fmt.Errorf("base URL must include a host")
+	}
+
+	parsed.Path = strings.TrimRight(parsed.Path, "/") + "/config.json"
+	parsed.RawQuery = ""
+	parsed.Fragment = ""
+	return parsed.String(), nil
 }

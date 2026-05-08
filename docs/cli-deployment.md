@@ -13,6 +13,7 @@ go build -o trustssh .
 Run it directly:
 
 ```bash
+./trustssh configure https://trustssh.demo.com
 ./trustssh login
 ./trustssh logout
 ```
@@ -47,7 +48,27 @@ mkdir -p ~/.trustssh
 chmod 700 ~/.trustssh
 ```
 
-Create `~/.trustssh/config.json` from Terraform outputs:
+Recommended setup is to fetch the generated config from the deployed TrustSSH API:
+
+```bash
+trustssh configure https://trustssh.demo.com
+```
+
+This downloads:
+
+```text
+https://trustssh.demo.com/config.json
+```
+
+and saves it to:
+
+```text
+~/.trustssh/config.json
+```
+
+with `0600` permissions.
+
+You can also create `~/.trustssh/config.json` manually from Terraform outputs:
 
 ```json
 {
@@ -55,7 +76,7 @@ Create `~/.trustssh/config.json` from Terraform outputs:
   "cognito_domain": "https://trustssh-cli.auth.eu-west-2.amazoncognito.com",
   "client_id": "the-cognito-client-id",
   "redirect_uri": "http://localhost:8765/callback",
-  "api_base_url": "https://api-id.execute-api.eu-west-2.amazonaws.com",
+  "api_base_url": "https://trustssh.demo.com",
   "default_duration_seconds": 1800
 }
 ```
@@ -77,6 +98,7 @@ terraform output -raw cognito_client_id
 terraform output -raw callback_url
 terraform output -raw api_base_url
 terraform output -raw api_gateway_default_endpoint
+terraform output -raw cli_config_url
 ```
 
 Map them into `config.json`:
@@ -89,6 +111,8 @@ Map them into `config.json`:
 | `redirect_uri` | `callback_url` |
 | `api_base_url` | `api_base_url` |
 | `default_duration_seconds` | `1800` |
+
+`cli_config_url` is the static config document fetched by `trustssh configure`.
 
 ## Login Flow
 

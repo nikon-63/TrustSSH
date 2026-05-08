@@ -8,6 +8,11 @@ func Execute(args []string) error {
 	}
 
 	switch args[0] {
+	case "configure":
+		if len(args) != 2 {
+			return fmt.Errorf("usage: trustssh configure <base-url>")
+		}
+		return Configure(args[1])
 	case "login":
 		if len(args) != 1 {
 			return fmt.Errorf("usage: trustssh login")
@@ -21,12 +26,13 @@ func Execute(args []string) error {
 	case "help", "-h", "--help":
 		return usage()
 	default:
-		return fmt.Errorf("unknown command %q\n\nUsage:\n  trustssh login\n  trustssh logout", args[0])
+		return fmt.Errorf("unknown command %q\n\nUsage:\n  trustssh configure <base-url>\n  trustssh login\n  trustssh logout", args[0])
 	}
 }
 
 func usage() error {
 	fmt.Println("Usage:")
+	fmt.Println("  trustssh configure <base-url>")
 	fmt.Println("  trustssh login")
 	fmt.Println("  trustssh logout")
 	return nil
