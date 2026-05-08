@@ -7,3 +7,6 @@ ca_public_key_value = "ssh-ed25519 AAAAreplace-with-real-ca-public-key trustssh-
 
 hosted_zone_id = ""
 base_domain    = ""
+
+static_content_bucket_name = "trustssh-static-content-xxxxxxx"
+

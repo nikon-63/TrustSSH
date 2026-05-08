@@ -139,6 +139,11 @@ variable "api_gateway_name" {
   default     = "trustssh-api"
 }
 
+variable "static_content_bucket_name" {
+  description = "S3 bucket name used to host static public TrustSSH content (Needs to be globally unique)."
+  type        = string
+}
+
 variable "issue_certificate_route_path" {
   description = "HTTP API route path for requesting a certificate."
   type        = string
