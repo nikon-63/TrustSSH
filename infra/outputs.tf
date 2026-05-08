@@ -69,7 +69,7 @@ output "cli_config_url" {
 }
 
 output "static_content_bucket" {
-  description = "S3 bucket storing static public TrustSSH content (Needs to be globally unique)."
+  description = "S3 bucket storing static public TrustSSH content."
   value       = module.static_config.bucket_name
 }
 
