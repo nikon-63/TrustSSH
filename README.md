@@ -10,6 +10,7 @@ TrustSSH is an SSH login broker that lets users authenticate through AWS Cognito
 ![AWS](https://img.shields.io/badge/AWS-Cognito%20%7C%20Lambda%20%7C%20DynamoDB-FF9900?logo=amazon-aws&logoColor=white)
 ![OpenSSH](https://img.shields.io/badge/OpenSSH-Certificates-2E3440)
 ![Terraform](https://img.shields.io/badge/IaC-Terraform-844FBA?logo=terraform&logoColor=white)
+![Homebrew](https://img.shields.io/badge/Homebrew-nikon--63%2Ftap%2Ftrustssh-FBB040?logo=homebrew&logoColor=black)
 
 </div>
 
@@ -84,7 +85,7 @@ See the deployment guides for full setup instructions:
 
 ---
 
-## CLI Useage
+## CLI Usage
 
 ```bash
 trustssh configure <base-url>
