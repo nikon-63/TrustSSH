@@ -63,9 +63,30 @@ terraform plan
 terraform apply
 ```
 
+Terraform creates two custom HTTPS domains:
+
+- `trustssh.demo.com` for the TrustSSH API
+- `auth.trustssh.demo.com` for Cognito managed login and passkeys
+
+The Cognito auth domain uses an ACM certificate in `us-east-1`, because Cognito custom domains are backed by CloudFront. Terraform also creates the Route 53 validation and alias records.
+
+Terraform also creates the default Cognito managed-login branding style for the CLI app client. Without that style, Cognito managed login can show `Login pages unavailable`.
+
 ### 6) Create a Cognito user
 
-Create a user in the deployed Cognito User Pool via the AWS Console. Record the user `sub` (Cognito user ID) for mapping.
+The Cognito pool is configured for passkey-capable sign-in:
+
+- email one-time password
+- WebAuthn/passkey
+- password
+
+Cognito currently requires `PASSWORD` to be present when `WEB_AUTHN` is enabled as a first auth factor. TrustSSH uses the custom auth domain as the WebAuthn relying party ID:
+
+```text
+auth.trustssh.demo.com
+```
+
+Create users as an administrator with an email address. Public self sign-up is disabled. After the user exists, use the managed login page to complete email verification and register a passkey. Record the user `sub` (Cognito user ID) for mapping.
 
 ### 7) Seed the DynamoDB user mapping table
 

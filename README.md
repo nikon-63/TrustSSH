@@ -18,7 +18,7 @@ trustssh logout
 
 `trustssh login`:
 
-1. Opens Cognito Hosted UI in the browser.
+1. Opens Cognito managed login in the browser.
 2. Receives the localhost OAuth callback.
 3. Exchanges the auth code using PKCE.
 4. Creates or reuses `~/.trustssh/id_ed25519`.

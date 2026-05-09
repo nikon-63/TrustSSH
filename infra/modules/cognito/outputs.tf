@@ -14,13 +14,6 @@ output "app_client_id" {
 }
 
 output "domain_prefix" {
-  description = "Cognito Hosted UI domain prefix."
-  value       = aws_cognito_user_pool_domain.this.domain
+  description = "Configured Cognito prefix value. The deployed login domain is managed by the cognito_auth_domain module."
+  value       = var.cognito_domain_prefix
 }
-
-output "hosted_ui_domain" {
-  description = "Cognito Hosted UI base URL."
-  value       = "https://${aws_cognito_user_pool_domain.this.domain}.auth.${data.aws_region.current.name}.amazoncognito.com"
-}
-
-data "aws_region" "current" {}

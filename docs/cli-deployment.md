@@ -125,7 +125,7 @@ trustssh login
 The CLI will:
 
 ```text
-1. Open the Cognito Hosted UI in your browser.
+1. Open Cognito managed login in your browser.
 2. Receive the localhost callback on http://localhost:8765/callback.
 3. Exchange the auth code for Cognito tokens using PKCE.
 4. Save tokens to ~/.trustssh/tokens.json.

@@ -24,8 +24,8 @@ output "cognito_client_id" {
 }
 
 output "cognito_domain" {
-  description = "Hosted UI base URL for Cognito authentication."
-  value       = module.cognito.hosted_ui_domain
+  description = "Managed login base URL for Cognito authentication."
+  value       = module.cognito_auth_domain.hosted_ui_domain
 }
 
 output "api_base_url" {
@@ -96,4 +96,14 @@ output "ca_public_key_parameter_name" {
 output "api_custom_domain_name" {
   description = "Custom domain name for the TrustSSH API."
   value       = module.route53.domain_name
+}
+
+output "cognito_custom_domain_name" {
+  description = "Custom domain name for Cognito managed login."
+  value       = module.cognito_auth_domain.domain_name
+}
+
+output "webauthn_relying_party_id" {
+  description = "WebAuthn relying party ID used for Cognito passkeys."
+  value       = module.cognito_auth_domain.webauthn_relying_party_id
 }
