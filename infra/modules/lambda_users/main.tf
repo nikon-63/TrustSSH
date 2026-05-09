@@ -17,8 +17,8 @@ resource "aws_lambda_function" "add" {
 
   environment {
     variables = {
-      USER_POOL_ID         = var.cognito_user_pool_id
-      USER_MAPPING_TABLE   = var.user_mapping_table_name
+      USER_POOL_ID       = var.cognito_user_pool_id
+      USER_MAPPING_TABLE = var.user_mapping_table_name
     }
   }
 
@@ -57,8 +57,8 @@ resource "aws_lambda_function" "remove" {
 
   environment {
     variables = {
-      USER_POOL_ID         = var.cognito_user_pool_id
-      USER_MAPPING_TABLE   = var.user_mapping_table_name
+      USER_POOL_ID       = var.cognito_user_pool_id
+      USER_MAPPING_TABLE = var.user_mapping_table_name
     }
   }
 
