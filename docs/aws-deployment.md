@@ -72,7 +72,21 @@ The Cognito auth domain uses an ACM certificate in `us-east-1`, because Cognito 
 
 Terraform also creates the default Cognito managed-login branding style for the CLI app client. Without that style, Cognito managed login can show `Login pages unavailable`.
 
-### 6) Create a Cognito user
+### 6) Create users
+> [!NOTE]  
+> There are now two options for creating users: using the created lambda functions that automatically create the Cognito user and DynamoDB mapping, or manually creating the Cognito user and DynamoDB mapping.
+
+#### Option 1: Use the Lambda function (recommended)
+Currently, two lambda functions are created for managing users: `trustssh-users-add` and `trustssh-users-remove`. Example invokings are below.
+
+[Create a user](lambda/users/add/test_event.txt)
+[Remove a user](lambda/users/remove/test_event.txt)
+
+
+
+
+#### Option 2: Manual creation
+#####  Create a Cognito user
 
 The Cognito pool is configured for passkey-capable sign-in:
 
@@ -88,7 +102,7 @@ auth.trustssh.demo.com
 
 Create users as an administrator with an email address. Public self sign-up is disabled. After the user exists, use the managed login page to complete email verification and register a passkey. Record the user `sub` (Cognito user ID) for mapping.
 
-### 7) Seed the DynamoDB user mapping table
+##### Seed the DynamoDB user mapping table
 
 Write a mapping item for the Cognito `sub` that lists allowed SSH principals. Example DynamoDB item (JSON format for `aws dynamodb put-item --item`):
 
