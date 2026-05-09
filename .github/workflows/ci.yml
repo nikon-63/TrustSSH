@@ -8,6 +8,8 @@ on:
 
 permissions:
   contents: read
+  pull-requests: write
+  issues: write
 
 jobs:
   terraform:
@@ -31,7 +33,20 @@ jobs:
         run: chmod +x helpers/*.sh
 
       - name: Run Terraform checks
-        run: make test-terraform
+        id: terraform_tests
+        run: |
+          set +e
+          make test-terraform 2>&1 | tee terraform-output.txt
+          EXIT_CODE=${PIPESTATUS[0]}
+          echo "exit_code=$EXIT_CODE" >> "$GITHUB_OUTPUT"
+          exit "$EXIT_CODE"
+
+      - name: Upload Terraform output
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: terraform-output
+          path: terraform-output.txt
 
   lambda:
     name: Lambda tests
@@ -45,12 +60,26 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+          cache: "pip"
 
       - name: Make helper scripts executable
         run: chmod +x helpers/*.sh
 
       - name: Run Lambda tests
-        run: make test-lambda
+        id: lambda_tests
+        run: |
+          set +e
+          make test-lambda 2>&1 | tee lambda-output.txt
+          EXIT_CODE=${PIPESTATUS[0]}
+          echo "exit_code=$EXIT_CODE" >> "$GITHUB_OUTPUT"
+          exit "$EXIT_CODE"
+
+      - name: Upload Lambda output
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lambda-output
+          path: lambda-output.txt
 
   cli:
     name: CLI tests
@@ -60,16 +89,30 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v5
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - name: Set up Go
+        uses: actions/setup-go@v5
         with:
-          python-version: "3.12"
+          go-version: "1.24"
+          cache: true
 
       - name: Make helper scripts executable
         run: chmod +x helpers/*.sh
 
       - name: Run CLI tests
-        run: make test-cli
+        id: cli_tests
+        run: |
+          set +e
+          make test-cli 2>&1 | tee cli-output.txt
+          EXIT_CODE=${PIPESTATUS[0]}
+          echo "exit_code=$EXIT_CODE" >> "$GITHUB_OUTPUT"
+          exit "$EXIT_CODE"
+
+      - name: Upload CLI output
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cli-output
+          path: cli-output.txt
 
   ci-result:
     name: CI result
@@ -81,6 +124,127 @@ jobs:
     if: always()
 
     steps:
+      - name: Download test outputs
+        uses: actions/download-artifact@v4
+        with:
+          path: ci-artifacts
+
+      - name: Build PR comment
+        if: github.event_name == 'pull_request'
+        run: |
+          terraform_result="${{ needs.terraform.result }}"
+          lambda_result="${{ needs.lambda.result }}"
+          cli_result="${{ needs.cli.result }}"
+
+          status_icon() {
+            case "$1" in
+              success) echo "✅ Passed" ;;
+              failure) echo "❌ Failed" ;;
+              cancelled) echo "⚠️ Cancelled" ;;
+              skipped) echo "⏭️ Skipped" ;;
+              *) echo "❓ Unknown" ;;
+            esac
+          }
+
+          terraform_status="$(status_icon "$terraform_result")"
+          lambda_status="$(status_icon "$lambda_result")"
+          cli_status="$(status_icon "$cli_result")"
+
+          {
+            echo "<!-- trustssh-ci-comment -->"
+            echo "## TrustSSH CI Results"
+            echo ""
+            echo "| Check | Result |"
+            echo "|------|--------|"
+            echo "| Terraform | $terraform_status |"
+            echo "| Lambda | $lambda_status |"
+            echo "| Go CLI | $cli_status |"
+            echo ""
+
+            echo "<details>"
+            echo "<summary>Terraform output</summary>"
+            echo ""
+            echo '```text'
+            if [ -f ci-artifacts/terraform-output/terraform-output.txt ]; then
+              tail -n 120 ci-artifacts/terraform-output/terraform-output.txt
+            else
+              echo "No Terraform output found."
+            fi
+            echo '```'
+            echo "</details>"
+            echo ""
+
+            echo "<details>"
+            echo "<summary>Lambda output</summary>"
+            echo ""
+            echo '```text'
+            if [ -f ci-artifacts/lambda-output/lambda-output.txt ]; then
+              tail -n 120 ci-artifacts/lambda-output/lambda-output.txt
+            else
+              echo "No Lambda output found."
+            fi
+            echo '```'
+            echo "</details>"
+            echo ""
+
+            echo "<details>"
+            echo "<summary>Go CLI output</summary>"
+            echo ""
+            echo '```text'
+            if [ -f ci-artifacts/cli-output/cli-output.txt ]; then
+              tail -n 120 ci-artifacts/cli-output/cli-output.txt
+            else
+              echo "No CLI output found."
+            fi
+            echo '```'
+            echo "</details>"
+            echo ""
+
+            echo "**Workflow run:** [View logs](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
+            echo ""
+            echo "_This comment updates automatically when the workflow re-runs._"
+          } > comment-body.md
+
+      - name: Add or update PR comment
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require("fs");
+
+            const marker = "<!-- trustssh-ci-comment -->";
+            const body = fs.readFileSync("comment-body.md", "utf8");
+
+            const { owner, repo } = context.repo;
+            const issue_number = context.issue.number;
+
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner,
+              repo,
+              issue_number,
+              per_page: 100,
+            });
+
+            const existingComment = comments.find(comment =>
+              comment.user.type === "Bot" && comment.body.includes(marker)
+            );
+
+            if (existingComment) {
+              await github.rest.issues.updateComment({
+                owner,
+                repo,
+                comment_id: existingComment.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number,
+                body,
+              });
+            }
+
       - name: Check all job results
         run: |
           echo "Terraform result: ${{ needs.terraform.result }}"
