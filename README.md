@@ -63,7 +63,28 @@ sequenceDiagram
 
 ---
 
-## CLI Commands
+## Deployment
+
+TrustSSH requires a deployed AWS backend and the local TrustSSH CLI.
+
+If you already have a TrustSSH AWS deployment, install the CLI using Homebrew:
+
+```bash
+brew install nikon-63/tap/trustssh
+```
+
+Then configure the CLI to point to your deployed TrustSSH API endpoint.
+
+See the deployment guides for full setup instructions:
+
+- [AWS Deployment Guide](docs/aws-deployment.md)
+- [CLI Deployment Guide](docs/cli-deployment.md)
+- [CLI Installation Using Homebrew](docs/cli-brew-install.md)
+
+
+---
+
+## CLI Useage
 
 ```bash
 trustssh configure <base-url>
