@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    name: Run TrustSSH checks
+    runs-on: ubuntu-latest
+
+    env:
+      AWS_EC2_METADATA_DISABLED: "true"
+      TF_IN_AUTOMATION: "true"
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_wrapper: false
+
+      - name: Make helper scripts executable
+        run: chmod +x helpers/*.sh
+
+      - name: Run Terraform checks
+        run: make test-terraform
+
+      - name: Run Lambda tests
+        run: make test-lambda
+
+      - name: Run CLI tests
+        run: make test-cli
