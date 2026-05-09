@@ -6,6 +6,29 @@ The Go CLI provides `trustssh configure`, `trustssh login`, and `trustssh logout
 
 TrustSSH does not upload the user's SSH private key. The CLI signs nothing locally and sends only the user's SSH public key to the signing API.
 
+Demostation of the CLI login flow:
+
+```bash
+# Before login, SSH access is denied:
+user@MacBook TrustSSH % ssh -i ~/.trustssh/id_ed25519 ubuntu@demo.com
+ubuntu@demo.com: Permission denied (publickey).
+# Login with the CLI, which opens the browser for Cognito auth:
+user@MacBook TrustSSH % ./trustssh login                                   
+Opening browser for Cognito login...
+Requesting 30 minute certificate...
+Authenticated as demo@example.com
+Using SSH key: ~/.trustssh/id_ed25519.pub
+Allowed SSH principals: ubuntu, demo
+Certificate saved: ~/.trustssh/id_ed25519-cert.pub
+Certificate valid until: 2026-05-09T14:38:28Z
+Tokens saved: /Users/user/.trustssh/tokens.json
+You can now use normal SSH commands.
+# After login, SSH access is granted with the short-lived certificate:
+user@MacBook TrustSSH % ssh -i ~/.trustssh/id_ed25519 ubuntu@192.168.100.31
+Welcome to Ubuntu 24.04 LTS (GNU/Linux 6.17.2-1-pve x86_64)
+ubuntu@ssh-demo:~$ 
+```
+
 ## Current CLI Commands
 
 ```bash
@@ -39,6 +62,6 @@ trustssh logout
 ```text
 cli/              Go CLI
 infra/            Terraform AWS infrastructure
-lambda/signer/    Python certificate signer Lambda
+lambda/           Python Lambda Functions
 docs/             Deployment and flow documentation
 ```
