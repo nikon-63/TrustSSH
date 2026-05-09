@@ -17,3 +17,13 @@ output "ca_public_key_parameter_arn" {
   description = "ARN of the CA public key SSM parameter."
   value       = aws_ssm_parameter.ca_public_key.arn
 }
+
+output "version_parameter_name" {
+  description = "Name of the TrustSSH version SSM parameter."
+  value       = aws_ssm_parameter.version.name
+}
+
+output "version_parameter_arn" {
+  description = "ARN of the TrustSSH version SSM parameter."
+  value       = aws_ssm_parameter.version.arn
+}

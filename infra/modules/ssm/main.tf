@@ -21,3 +21,15 @@ resource "aws_ssm_parameter" "ca_public_key" {
     Purpose = "trustssh-ca-public-key"
   }
 }
+
+resource "aws_ssm_parameter" "version" {
+  name        = var.version_parameter_name
+  description = "TrustSSH application version."
+  type        = "String"
+  value       = var.version_value
+
+  tags = {
+    Project = var.project_name
+    Purpose = "trustssh-version"
+  }
+}

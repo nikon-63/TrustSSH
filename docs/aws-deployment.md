@@ -52,6 +52,14 @@ ssh-keygen -t ed25519 -f /tmp/trustssh_ca -N "" -C "trustssh-ca"
 
 Edit `terraform.tfvars` (or create one from `terraform.tfvars.example`) with your environment values.
 
+Terraform reads the root `VERSION` file during plan/apply and stores that value in SSM Parameter Store at:
+
+```text
+/trustssh/version
+```
+
+You do not need to pass the version on the command line.
+
 ### 5) Deploy Terraform
 
 Run the standard Terraform deployment from the `infra/` directory:

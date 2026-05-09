@@ -93,6 +93,16 @@ output "ca_public_key_parameter_name" {
   value       = module.ssm.ca_public_key_parameter_name
 }
 
+output "version" {
+  description = "TrustSSH version read from the root VERSION file."
+  value       = data.external.version.result.version
+}
+
+output "version_parameter_name" {
+  description = "SSM parameter name for the TrustSSH version."
+  value       = module.ssm.version_parameter_name
+}
+
 output "api_custom_domain_name" {
   description = "Custom domain name for the TrustSSH API."
   value       = module.route53.domain_name
