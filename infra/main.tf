@@ -10,6 +10,10 @@ terraform {
       source  = "hashicorp/archive"
       version = "~> 2.4"
     }
+    external = {
+      source  = "hashicorp/external"
+      version = "~> 2.3"
+    }
   }
 }
 
@@ -32,6 +36,10 @@ provider "aws" {
       Project = var.project_name
     }
   }
+}
+
+data "external" "version" {
+  program = ["${path.module}/scripts/read_version.sh"]
 }
 
 module "cognito" {
@@ -84,6 +92,8 @@ module "ssm" {
   ca_private_key_value          = var.ca_private_key_value
   ca_public_key_parameter_name  = var.ca_public_key_parameter_name
   ca_public_key_value           = var.ca_public_key_value
+  version_parameter_name        = var.version_parameter_name
+  version_value                 = data.external.version.result.version
 }
 
 module "iam" {

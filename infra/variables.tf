@@ -127,6 +127,12 @@ variable "ca_public_key_value" {
   type        = string
 }
 
+variable "version_parameter_name" {
+  description = "Name of the SSM String parameter that stores the TrustSSH version from the root VERSION file."
+  type        = string
+  default     = "/trustssh/version"
+}
+
 variable "signer_lambda_role_name" {
   description = "Name of the IAM role used by the signer Lambda."
   type        = string

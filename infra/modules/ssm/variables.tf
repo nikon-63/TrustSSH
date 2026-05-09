@@ -23,3 +23,13 @@ variable "ca_public_key_value" {
   description = "OpenSSH CA public key material to store in SSM String."
   type        = string
 }
+
+variable "version_parameter_name" {
+  description = "Name of the SSM String parameter that stores the TrustSSH version."
+  type        = string
+}
+
+variable "version_value" {
+  description = "TrustSSH version read from the root VERSION file."
+  type        = string
+}
