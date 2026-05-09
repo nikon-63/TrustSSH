@@ -22,6 +22,10 @@ source "$VENV_DIR/bin/activate"
 python3 -m pip install --upgrade pip
 python3 -m pip install -r "$REQUIREMENTS_FILE"
 
+export AWS_ACCESS_KEY_ID="test"
+export AWS_SECRET_ACCESS_KEY="test"
+export AWS_DEFAULT_REGION="eu-west-2"
+
 echo "Running Lambda unit tests"
 
 for target in "${TEST_TARGETS[@]}"; do
