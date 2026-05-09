@@ -64,4 +64,5 @@ cli/              Go CLI
 infra/            Terraform AWS infrastructure
 lambda/           Python Lambda Functions
 docs/             Deployment and flow documentation
+helpers/          Helper scripts and shared code
 ```
