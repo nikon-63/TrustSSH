@@ -4,7 +4,11 @@ This guide covers building, installing, and configuring the TrustSSH CLI.
 
 ## Build the Binary
 
-!NOTE: Dev build ```go build -o trustssh .``` does not include the version string, so the CLI will report version as `dev`.
+> [!NOTE]  
+> Dev build ```go build -o trustssh .``` does not include the version string, so the CLI will report version as `dev`.
+
+> [!NOTE]  
+> The CLI can also be installed using Homebrew. See [CLI Installation Using Homebrew](cli-brew-install.md) for instructions.
 
 From the CLI directory:
 

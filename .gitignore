@@ -18,3 +18,4 @@ __pycache__/
 
 # Go build artifacts
 cli/trustssh
+dist/
