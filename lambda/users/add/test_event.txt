@@ -1,0 +1,8 @@
+{
+  "email": "testuser@example.com",
+  "ssh_principals": [
+    "ubuntu",
+    "demo"
+  ],
+  "max_duration_seconds": 3600
+}

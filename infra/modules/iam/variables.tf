@@ -8,6 +8,16 @@ variable "signer_role_name" {
   type        = string
 }
 
+variable "users_role_name" {
+  description = "Name of the IAM role used by the users Lambda."
+  type        = string
+}
+
+variable "cognito_user_pool_arn" {
+  description = "ARN of the Cognito User Pool."
+  type        = string
+}
+
 variable "user_mapping_table_arn" {
   description = "ARN of the DynamoDB user mapping table."
   type        = string
