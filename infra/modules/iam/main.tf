@@ -84,6 +84,7 @@ data "aws_iam_policy_document" "users" {
     sid = "ManageCognitoUsers"
     actions = [
       "cognito-idp:AdminCreateUser",
+      "cognito-idp:AdminDeleteUser",
     ]
     resources = [var.cognito_user_pool_arn]
   }
@@ -92,6 +93,8 @@ data "aws_iam_policy_document" "users" {
     sid = "WriteUserMappings"
     actions = [
       "dynamodb:PutItem",
+      "dynamodb:GetItem",
+      "dynamodb:DeleteItem",
     ]
     resources = [var.user_mapping_table_arn]
   }

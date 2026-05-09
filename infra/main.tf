@@ -117,6 +117,7 @@ module "lambda_users" {
 
   project_name            = var.project_name
   add_function_name       = var.users_lambda_add_function_name
+  remove_function_name    = var.users_lambda_remove_function_name
   source_dir              = "${path.module}/../lambda/users"
   role_arn                = module.iam.users_role_arn
   cognito_user_pool_id    = module.cognito.user_pool_id
