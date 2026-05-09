@@ -1,4 +1,4 @@
-.PHONY: help test-cli test-lambda test-terraform test-all
+.PHONY: help test-cli test-lambda test-terraform test-all build-release
 
 .DEFAULT_GOAL := help
 
@@ -18,3 +18,7 @@ test-terraform: ## (Tests) Run Terraform checks
 	./helpers/terraform-test.sh
 
 test-all: test-terraform test-lambda test-cli ## (Tests) Run all tests
+
+build-release: ## (Build) Build release assets
+	@echo "Building release assets"
+	./helpers/build-release.sh
