@@ -133,6 +133,18 @@ variable "signer_lambda_role_name" {
   default     = "trustssh-signer-role"
 }
 
+variable "users_lambda_add_function_name" {
+  description = "Name of the users add Lambda function."
+  type        = string
+  default     = "trustssh-users-add"
+}
+
+variable "users_lambda_role_name" {
+  description = "Name of the IAM role used by the users Lambda."
+  type        = string
+  default     = "trustssh-users-role"
+}
+
 variable "signer_lambda_function_name" {
   description = "Name of the signer Lambda function."
   type        = string

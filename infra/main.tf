@@ -91,6 +91,8 @@ module "iam" {
 
   project_name                 = var.project_name
   signer_role_name             = var.signer_lambda_role_name
+  users_role_name              = var.users_lambda_role_name
+  cognito_user_pool_arn        = module.cognito.user_pool_arn
   user_mapping_table_arn       = module.dynamodb.user_mapping_table_arn
   audit_events_table_arn       = module.dynamodb.audit_events_table_arn
   ca_private_key_parameter_arn = module.ssm.ca_private_key_parameter_arn
@@ -108,6 +110,17 @@ module "lambda_signer" {
   ca_private_key_parameter_name = module.ssm.ca_private_key_parameter_name
   default_duration_seconds      = var.default_certificate_duration_seconds
   max_duration_seconds          = var.max_certificate_duration_seconds
+}
+
+module "lambda_users" {
+  source = "./modules/lambda_users"
+
+  project_name            = var.project_name
+  add_function_name       = var.users_lambda_add_function_name
+  source_dir              = "${path.module}/../lambda/users"
+  role_arn                = module.iam.users_role_arn
+  cognito_user_pool_id    = module.cognito.user_pool_id
+  user_mapping_table_name = module.dynamodb.user_mapping_table_name
 }
 
 module "api_gateway" {
