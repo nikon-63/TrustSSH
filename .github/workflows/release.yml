@@ -1,0 +1,173 @@
+name: Release
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Stable release
+    runs-on: ubuntu-latest
+    environment: Stable
+
+    steps:
+      - name: Checkout TrustSSH
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: cli/go.mod
+          cache-dependency-path: cli/go.sum
+
+      - name: Read version
+        id: version
+        run: |
+          VERSION="$(tr -d '[:space:]' < VERSION)"
+
+          if [[ -z "$VERSION" ]]; then
+            echo "VERSION file is empty"
+            exit 1
+          fi
+
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "VERSION must look like 1.0.0"
+            exit 1
+          fi
+
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+
+      - name: Check tag and release do not already exist
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git fetch --tags
+
+          if git rev-parse "$VERSION" >/dev/null 2>&1; then
+            echo "Tag already exists locally: $VERSION"
+            exit 1
+          fi
+
+          if git ls-remote --tags origin "refs/tags/$VERSION" | grep -q "$VERSION"; then
+            echo "Tag already exists on GitHub: $VERSION"
+            exit 1
+          fi
+
+          if gh release view "$VERSION" >/dev/null 2>&1; then
+            echo "Release already exists: $VERSION"
+            exit 1
+          fi
+
+      - name: Build release assets
+        run: |
+          chmod +x helpers/build-release.sh
+          ./helpers/build-release.sh
+
+      - name: Create and push git tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git tag -a "$VERSION" -m "TrustSSH $VERSION"
+          git push origin "$VERSION"
+
+      - name: Create GitHub release and upload assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          INSTALL_NOTES="$(cat <<EOF
+          ## Installation
+
+          \`\`\`bash
+          brew install nikon-63/tap/trustssh
+          \`\`\`
+          EOF
+          )"
+
+          gh release create "$VERSION" \
+            dist/release/trustssh_Darwin_arm64.tar.gz \
+            dist/release/trustssh_Darwin_x86_64.tar.gz \
+            dist/release/trustssh_Linux_arm64.tar.gz \
+            dist/release/trustssh_Linux_x86_64.tar.gz \
+            dist/release/trustssh_checksums.txt \
+            --title "TrustSSH $VERSION" \
+            --generate-notes \
+            --notes "$INSTALL_NOTES"
+
+      - name: Read checksums
+        id: checksums
+        run: |
+          cd dist/release
+
+          echo "darwin_arm64=$(grep 'trustssh_Darwin_arm64.tar.gz' trustssh_checksums.txt | awk '{print $1}')" >> "$GITHUB_OUTPUT"
+          echo "darwin_x86_64=$(grep 'trustssh_Darwin_x86_64.tar.gz' trustssh_checksums.txt | awk '{print $1}')" >> "$GITHUB_OUTPUT"
+          echo "linux_arm64=$(grep 'trustssh_Linux_arm64.tar.gz' trustssh_checksums.txt | awk '{print $1}')" >> "$GITHUB_OUTPUT"
+          echo "linux_x86_64=$(grep 'trustssh_Linux_x86_64.tar.gz' trustssh_checksums.txt | awk '{print $1}')" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout Homebrew tap
+        uses: actions/checkout@v4
+        with:
+          repository: nikon-63/homebrew-tap
+          token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+          path: homebrew-tap
+
+      - name: Update Homebrew formula
+        run: |
+          mkdir -p homebrew-tap/Formula
+
+          cat > homebrew-tap/Formula/trustssh.rb <<EOF
+          class Trustssh < Formula
+            desc "SSH login broker for short-lived OpenSSH user certificates using AWS Cognito and Lambda"
+            homepage "https://github.com/nikon-63/TrustSSH"
+            version "$VERSION"
+
+            on_macos do
+              if Hardware::CPU.arm?
+                url "https://github.com/nikon-63/TrustSSH/releases/download/$VERSION/trustssh_Darwin_arm64.tar.gz"
+                sha256 "${{ steps.checksums.outputs.darwin_arm64 }}"
+              else
+                url "https://github.com/nikon-63/TrustSSH/releases/download/$VERSION/trustssh_Darwin_x86_64.tar.gz"
+                sha256 "${{ steps.checksums.outputs.darwin_x86_64 }}"
+              end
+            end
+
+            on_linux do
+              if Hardware::CPU.arm?
+                url "https://github.com/nikon-63/TrustSSH/releases/download/$VERSION/trustssh_Linux_arm64.tar.gz"
+                sha256 "${{ steps.checksums.outputs.linux_arm64 }}"
+              else
+                url "https://github.com/nikon-63/TrustSSH/releases/download/$VERSION/trustssh_Linux_x86_64.tar.gz"
+                sha256 "${{ steps.checksums.outputs.linux_x86_64 }}"
+              end
+            end
+
+            def install
+              bin.install "trustssh"
+            end
+
+            test do
+              assert_match "trustssh", shell_output("#{bin}/trustssh")
+            end
+          end
+          EOF
+
+      - name: Commit and push Homebrew formula
+        working-directory: homebrew-tap
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add Formula/trustssh.rb
+
+          if git diff --cached --quiet; then
+            echo "No Homebrew formula changes to commit."
+            exit 0
+          fi
+
+          git commit -m "Update TrustSSH to $VERSION"
+          git push
