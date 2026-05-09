@@ -61,7 +61,8 @@ module "cognito_auth_domain" {
   hosted_zone_id             = var.hosted_zone_id
   domain_name                = "${var.auth_subdomain}.${var.base_domain}"
   user_pool_id               = module.cognito.user_pool_id
-  client_id                  = module.cognito.app_client_id
+  client_id                  = module.cognito.user_pool_client_id
+  callback_urls              = [var.callback_url]
   webauthn_user_verification = "required"
 }
 
@@ -116,7 +117,7 @@ module "api_gateway" {
   api_name             = var.api_gateway_name
   route_path           = var.issue_certificate_route_path
   cognito_user_pool_id = module.cognito.user_pool_id
-  cognito_client_id    = module.cognito.app_client_id
+  cognito_client_id    = module.cognito.user_pool_client_id
   signer_function_name = module.lambda_signer.function_name
   signer_invoke_arn    = module.lambda_signer.invoke_arn
 }
@@ -139,8 +140,8 @@ module "static_config" {
   api_id       = module.api_gateway.api_id
   config_json = jsonencode({
     region                   = var.aws_region
-    cognito_domain           = module.cognito_auth_domain.hosted_ui_domain
-    client_id                = module.cognito.app_client_id
+    cognito_domain           = module.cognito_auth_domain.auth_domain_url
+    client_id                = module.cognito.user_pool_client_id
     redirect_uri             = var.callback_url
     api_base_url             = module.route53.api_base_url
     default_duration_seconds = var.default_certificate_duration_seconds

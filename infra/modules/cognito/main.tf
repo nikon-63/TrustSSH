@@ -3,7 +3,7 @@ resource "aws_cognito_user_pool" "this" {
 
   username_attributes      = ["email"]
   auto_verified_attributes = ["email"]
-  mfa_configuration        = "OFF"
+  mfa_configuration        = "OPTIONAL"
   user_pool_tier           = "ESSENTIALS"
 
   admin_create_user_config {
@@ -16,6 +16,10 @@ resource "aws_cognito_user_pool" "this" {
 
   sign_in_policy {
     allowed_first_auth_factors = ["PASSWORD", "EMAIL_OTP", "WEB_AUTHN"]
+  }
+
+  software_token_mfa_configuration {
+    enabled = true
   }
 
   schema {
@@ -40,6 +44,10 @@ resource "aws_cognito_user_pool" "this" {
 
   tags = {
     Project = var.project_name
+  }
+
+  lifecycle {
+    ignore_changes = [web_authn_configuration]
   }
 }
 

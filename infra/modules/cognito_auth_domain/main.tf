@@ -108,6 +108,7 @@ EOT
   }
 
   depends_on = [
+    aws_cognito_user_pool_domain.auth,
     aws_route53_record.auth,
     terraform_data.managed_login_branding,
   ]

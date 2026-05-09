@@ -28,6 +28,11 @@ variable "client_id" {
   type        = string
 }
 
+variable "callback_urls" {
+  description = "Allowed OAuth callback URLs for hosted UI links."
+  type        = list(string)
+}
+
 variable "webauthn_user_verification" {
   description = "WebAuthn user verification setting."
   type        = string
