@@ -14,6 +14,7 @@ Run it directly:
 
 ```bash
 ./trustssh configure https://trustssh.demo.com
+./trustssh passkeys add
 ./trustssh login
 ./trustssh logout
 ```
@@ -133,6 +134,17 @@ The CLI will:
 6. Send ~/.trustssh/id_ed25519.pub to the TrustSSH API.
 7. Save the returned certificate to ~/.trustssh/id_ed25519-cert.pub.
 ```
+
+## Passkey Enrollment
+
+To add a passkey, run:
+
+```bash
+trustssh passkeys add
+```
+
+This opens the Cognito managed login passkey enrollment page using the
+client ID and redirect URI from ~/.trustssh/config.json.
 
 Expected local files:
 

@@ -10,6 +10,7 @@ TrustSSH does not upload the user's SSH private key. The CLI signs nothing local
 
 ```bash
 trustssh configure <base-url>
+trustssh passkeys add
 trustssh login
 trustssh logout
 ```
