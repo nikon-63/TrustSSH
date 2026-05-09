@@ -10,6 +10,7 @@
 **/build/
 *.zip
 infra/backend.tf
+.terraform-test
 
 # Python
 __pycache__/
