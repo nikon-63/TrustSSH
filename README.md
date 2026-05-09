@@ -144,7 +144,7 @@ You can now use normal SSH commands.
 After login, SSH works using the short-lived certificate:
 
 ```bash
-user@MacBook TrustSSH % ssh -i ~/.trustssh/id_ed25519 ubuntu@192.168.100.31
+user@MacBook TrustSSH % ssh -i ~/.trustssh/id_ed25519 ubuntu@demo.com
 Welcome to Ubuntu 24.04 LTS (GNU/Linux 6.17.2-1-pve x86_64)
 
 ubuntu@ssh-demo:~$
