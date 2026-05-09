@@ -10,6 +10,7 @@ TrustSSH does not upload the user's SSH private key. The CLI signs nothing local
 
 ```bash
 trustssh configure <base-url>
+trustssh passkeys add
 trustssh login
 trustssh logout
 ```
@@ -18,7 +19,7 @@ trustssh logout
 
 `trustssh login`:
 
-1. Opens Cognito Hosted UI in the browser.
+1. Opens Cognito managed login in the browser.
 2. Receives the localhost OAuth callback.
 3. Exchanges the auth code using PKCE.
 4. Creates or reuses `~/.trustssh/id_ed25519`.

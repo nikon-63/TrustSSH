@@ -10,7 +10,7 @@ TrustSSH does not send the user's SSH private key to AWS. The CLI signs nothing 
 flowchart LR
     User[User] --> CLI[TrustSSH CLI]
     CLI --> Browser[Browser]
-    Browser --> Cognito[Cognito Hosted UI]
+    Browser --> Cognito[Cognito managed login]
     Cognito --> CLI
     CLI --> API[API Gateway HTTP API]
     API --> Lambda[Signer Lambda]
@@ -32,7 +32,7 @@ sequenceDiagram
     actor User
     participant CLI as TrustSSH CLI
     participant Browser
-    participant Cognito as Cognito Hosted UI
+    participant Cognito as Cognito managed login
     participant TokenEndpoint as Cognito token endpoint
     participant LocalFiles as ~/.trustssh
 
@@ -41,8 +41,8 @@ sequenceDiagram
     CLI->>CLI: Generate PKCE verifier, challenge, and OAuth state
     CLI->>CLI: Start localhost callback server
     CLI->>Browser: Open /oauth2/authorize URL
-    Browser->>Cognito: GET /oauth2/authorize
-    Cognito-->>Browser: Login and MFA challenge if configured
+    Browser->>Cognito: GET auth.trustssh.aws.teb2.co.uk/oauth2/authorize
+    Cognito-->>Browser: Email OTP or passkey challenge
     User->>Cognito: Authenticate
     Cognito-->>Browser: Redirect to http://localhost:8765/callback?code=...&state=...
     Browser->>CLI: GET /callback with auth code and state

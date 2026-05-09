@@ -1,3 +1,5 @@
+data "aws_region" "current" {}
+
 output "user_pool_id" {
   description = "ID of the Cognito User Pool."
   value       = aws_cognito_user_pool.this.id
@@ -13,14 +15,17 @@ output "app_client_id" {
   value       = aws_cognito_user_pool_client.cli.id
 }
 
+output "user_pool_client_id" {
+  description = "Client ID for the Cognito user pool app client."
+  value       = aws_cognito_user_pool_client.cli.id
+}
+
+output "issuer_url" {
+  description = "OIDC issuer URL for the Cognito User Pool."
+  value       = "https://cognito-idp.${data.aws_region.current.name}.amazonaws.com/${aws_cognito_user_pool.this.id}"
+}
+
 output "domain_prefix" {
-  description = "Cognito Hosted UI domain prefix."
-  value       = aws_cognito_user_pool_domain.this.domain
+  description = "Configured Cognito prefix value. The deployed login domain is managed by the cognito_auth_domain module."
+  value       = var.cognito_domain_prefix
 }
-
-output "hosted_ui_domain" {
-  description = "Cognito Hosted UI base URL."
-  value       = "https://${aws_cognito_user_pool_domain.this.domain}.auth.${data.aws_region.current.name}.amazoncognito.com"
-}
-
-data "aws_region" "current" {}

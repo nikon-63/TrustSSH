@@ -74,6 +74,12 @@ variable "api_subdomain" {
   default     = "trustssh"
 }
 
+variable "auth_subdomain" {
+  description = "Subdomain label for the Cognito custom auth domain."
+  type        = string
+  default     = "auth.trustssh"
+}
+
 variable "dynamodb_user_mapping_table_name" {
   description = "Name of the DynamoDB table that maps Cognito users to allowed SSH principals."
   type        = string
