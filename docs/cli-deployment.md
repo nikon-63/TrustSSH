@@ -4,10 +4,13 @@ This guide covers building, installing, and configuring the TrustSSH CLI.
 
 ## Build the Binary
 
+!NOTE: Dev build ```go build -o trustssh .``` does not include the version string, so the CLI will report version as `dev`.
+
 From the CLI directory:
 
 ```bash
-go build -o trustssh .
+VERSION=$(tr -d '\n' < ../VERSION)
+go build -ldflags "-X github.com/nikon-63/TrustSSH/cli/cmd.Version=${VERSION}" -o trustssh .
 ```
 
 Run it directly:
@@ -25,7 +28,8 @@ Install the binary to `~/bin` and ensure that is on your `PATH`:
 
 ```bash
 mkdir -p ~/bin
-go build -o ~/bin/trustssh .
+VERSION=$(tr -d '\n' < ../VERSION)
+go build -ldflags "-X github.com/nikon-63/TrustSSH/cli/cmd.Version=${VERSION}" -o ~/bin/trustssh .
 ```
 
 Edit `~/.zshrc`:

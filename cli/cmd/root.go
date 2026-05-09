@@ -2,6 +2,8 @@ package cmd
 
 import "fmt"
 
+var Version = "dev"
+
 func Execute(args []string) error {
 	if len(args) == 0 {
 		return usage()
@@ -31,15 +33,21 @@ func Execute(args []string) error {
 	case "help", "-h", "--help":
 		return usage()
 	default:
-		return fmt.Errorf("unknown command %q\n\nUsage:\n  trustssh configure <base-url>\n  trustssh passkeys add\n  trustssh login\n  trustssh logout", args[0])
+		return fmt.Errorf("unknown command %q\n\n%s", args[0], usageText())
 	}
 }
 
 func usage() error {
-	fmt.Println("Usage:")
-	fmt.Println("  trustssh configure <base-url>")
-	fmt.Println("  trustssh passkeys add")
-	fmt.Println("  trustssh login")
-	fmt.Println("  trustssh logout")
+	fmt.Println(usageText())
 	return nil
+}
+
+func usageText() string {
+	return fmt.Sprintf(`Usage:
+  trustssh configure <base-url>
+  trustssh passkeys add
+  trustssh login
+  trustssh logout
+
+Version: %s`, Version)
 }
