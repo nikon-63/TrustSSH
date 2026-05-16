@@ -1,0 +1,3 @@
+---
+trustssh_openssh_package: openssh
+trustssh_ssh_service: sshd

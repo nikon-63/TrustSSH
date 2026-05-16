@@ -1,0 +1,71 @@
+---
+- name: Load OS variables
+  ansible.builtin.include_vars: "{{ ansible_facts['os_family'] }}.yml"
+
+- name: Check if OS is supported
+  ansible.builtin.fail:
+    msg: "Unsupported OS: {{ ansible_os_family }}. Vars only exist for Debian and RedHat families."
+  when: trustssh_openssh_package is not defined or trustssh_ssh_service is not defined
+
+- name: Install mode checks
+  when: not trustssh_remove
+  block:
+    - name: Fail if TrustSSH CA public key is not set
+      ansible.builtin.fail:
+        msg: "trustssh_ca_public_key must be set to your TrustSSH CA public key."
+      when: trustssh_ca_public_key | length == 0
+
+- name: Install OpenSSH server
+  ansible.builtin.package:
+    name: "{{ trustssh_openssh_package }}"
+    state: present
+  when:
+    - not trustssh_remove
+    - trustssh_install_openssh
+
+- name: Ensure SSH config drop-in directory exists
+  ansible.builtin.file:
+    path: "{{ trustssh_sshd_config_dropin_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+  when:
+    - not trustssh_remove
+    - trustssh_use_dropin
+
+- name: Install TrustSSH CA public key
+  ansible.builtin.copy:
+    content: "{{ trustssh_ca_public_key }}\n"
+    dest: "{{ trustssh_ca_path }}"
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Validate and reload SSH
+  when: not trustssh_remove
+
+- name: Install TrustSSH sshd config drop-in
+  ansible.builtin.template:
+    src: trustssh.conf.j2
+    dest: "{{ trustssh_sshd_dropin_file }}"
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Validate and reload SSH
+  when:
+    - not trustssh_remove
+    - trustssh_use_dropin
+
+- name: Remove TrustSSH sshd config drop-in
+  ansible.builtin.file:
+    path: "{{ trustssh_sshd_dropin_file }}"
+    state: absent
+  notify: Validate and reload SSH
+  when: trustssh_remove
+
+- name: Remove TrustSSH CA public key
+  ansible.builtin.file:
+    path: "{{ trustssh_ca_path }}"
+    state: absent
+  notify: Validate and reload SSH
+  when: trustssh_remove
