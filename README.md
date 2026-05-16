@@ -10,6 +10,7 @@ TrustSSH is an SSH login broker that lets users authenticate through AWS Cognito
 ![AWS](https://img.shields.io/badge/AWS-Cognito%20%7C%20Lambda%20%7C%20DynamoDB-FF9900?logo=amazon-aws&logoColor=white)
 ![OpenSSH](https://img.shields.io/badge/OpenSSH-Certificates-2E3440)
 ![Terraform](https://img.shields.io/badge/IaC-Terraform-844FBA?logo=terraform&logoColor=white)
+![Ansible](https://img.shields.io/badge/Server%20Bootstrap-Ansible-EE0000?logo=ansible&logoColor=white)
 ![Homebrew](https://img.shields.io/badge/Homebrew-nikon--63%2Ftap%2Ftrustssh-FBB040?logo=homebrew&logoColor=black)
 
 </div>
@@ -189,15 +190,19 @@ TrustSSH is designed so that the user's private key never leaves their machine.
 
 ---
 
-## Server Requirements
+## Server Provisioning
 
-SSH servers must trust the TrustSSH CA public key.
+Each SSH server must be configured to trust the TrustSSH CA public key before users can log in with TrustSSH-issued SSH certificates.
+
+The recommended method is the automatic bootstrap installer: 
+- Replace the `TRUSTSSH_ENDPOINT` value with your deployed TrustSSH API URL.
 
 ```bash
-#/etc/ssh/sshd_config
-TrustedUserCAKeys /etc/ssh/trustssh_ca.pem
+export TRUSTSSH_ENDPOINT="https://trustssh.example.com"
+curl --proto '=https' --tlsv1.2 -sSfL https://raw.githubusercontent.com/nikon-63/TrustSSH/main/helpers/bootstrap-install.sh | sudo -E bash
 ```
 
+For manual provisioning instructions, see the [SSH Server Provisioning Guide](docs/ssh-server-provisioning.md).
 ---
 
 ## Documentation
@@ -206,6 +211,9 @@ TrustedUserCAKeys /etc/ssh/trustssh_ca.pem
 |---|---|
 | [AWS deployment](docs/aws-deployment.md) | Deploy the Cognito, Lambda, API Gateway, DynamoDB, and related AWS infrastructure. |
 | [CLI deployment](docs/cli-deployment.md) | Build, configure, and use the TrustSSH CLI. |
+| [CLI Installation Using Homebrew](docs/cli-brew-install.md) | TrustSSH brew installation. |
 | [Request flow](docs/request-flow.md) | Detailed explanation of the authentication and certificate signing flow. |
+| [SSH Server Provisioning](docs/ssh-server-provisioning.md) | Instructions for configuring SSH servers to trust the TrustSSH CA. |
+
 
 ---
