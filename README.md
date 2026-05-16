@@ -189,15 +189,19 @@ TrustSSH is designed so that the user's private key never leaves their machine.
 
 ---
 
-## Server Requirements
+## Server Provisioning
 
-SSH servers must trust the TrustSSH CA public key.
+Each SSH server must be configured to trust the TrustSSH CA public key before users can log in with TrustSSH-issued SSH certificates.
+
+The recommended method is the automatic bootstrap installer: 
+- Replace the `TRUSTSSH_ENDPOINT` value with your deployed TrustSSH API URL.
 
 ```bash
-#/etc/ssh/sshd_config
-TrustedUserCAKeys /etc/ssh/trustssh_ca.pem
+export TRUSTSSH_ENDPOINT="https://trustssh.example.com"
+curl --proto '=https' --tlsv1.2 -sSfL https://raw.githubusercontent.com/nikon-63/TrustSSH/main/helpers/bootstrap-install.sh | sudo -E bash
 ```
 
+For manual provisioning instructions, see the [SSH Server Provisioning Guide](docs/ssh-server-provisioning.md).
 ---
 
 ## Documentation
@@ -206,6 +210,9 @@ TrustedUserCAKeys /etc/ssh/trustssh_ca.pem
 |---|---|
 | [AWS deployment](docs/aws-deployment.md) | Deploy the Cognito, Lambda, API Gateway, DynamoDB, and related AWS infrastructure. |
 | [CLI deployment](docs/cli-deployment.md) | Build, configure, and use the TrustSSH CLI. |
+| [CLI Installation Using Homebrew](docs/cli-brew-install.md) | TrustSSH brew installation. |
 | [Request flow](docs/request-flow.md) | Detailed explanation of the authentication and certificate signing flow. |
+| [SSH Server Provisioning](docs/ssh-server-provisioning.md) | Instructions for configuring SSH servers to trust the TrustSSH CA. |
+
 
 ---
