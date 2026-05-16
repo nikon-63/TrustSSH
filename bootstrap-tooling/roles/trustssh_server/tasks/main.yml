@@ -23,6 +23,15 @@
     - not trustssh_remove
     - trustssh_install_openssh
 
+- name: Ensure sshd runtime directory exists
+  ansible.builtin.file:
+    path: /run/sshd
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+  when: ansible_facts['os_family'] == "Debian"
+
 - name: Ensure SSH config drop-in directory exists
   ansible.builtin.file:
     path: "{{ trustssh_sshd_config_dropin_dir }}"
