@@ -1,0 +1,14 @@
+---
+trustssh_ca_public_key: ""
+trustssh_remove: false
+
+trustssh_ca_path: /etc/ssh/trustssh_ca.pem
+trustssh_sshd_config: /etc/ssh/sshd_config
+
+trustssh_sshd_config_dropin_dir: /etc/ssh/sshd_config.d
+trustssh_sshd_dropin_file: /etc/ssh/sshd_config.d/99-trustssh.conf
+trustssh_use_dropin: true
+
+trustssh_sshd_binary: /usr/sbin/sshd
+
+trustssh_install_openssh: true

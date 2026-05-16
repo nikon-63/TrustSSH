@@ -1,0 +1,7 @@
+---
+- name: Install TrustSSH server bootstrap config
+  hosts: trustssh_servers
+  become: true
+
+  roles:
+    - role: trustssh_server

@@ -1,0 +1,9 @@
+---
+- name: Remove TrustSSH server bootstrap config
+  hosts: trustssh_servers
+  become: true
+
+  roles:
+    - role: trustssh_server
+      vars:
+        trustssh_remove: true

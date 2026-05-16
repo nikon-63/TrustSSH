@@ -1,0 +1,3 @@
+---
+trustssh_openssh_package: openssh-server
+trustssh_ssh_service: ssh

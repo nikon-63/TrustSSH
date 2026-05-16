@@ -1,0 +1,11 @@
+---
+- name: Validate sshd config
+  ansible.builtin.command: "{{ trustssh_sshd_binary }} -t -f {{ trustssh_sshd_config }}"
+  changed_when: false
+  listen: Validate and reload SSH
+
+- name: Reload SSH
+  ansible.builtin.service:
+    name: "{{ trustssh_ssh_service }}"
+    state: reloaded
+  listen: Validate and reload SSH
