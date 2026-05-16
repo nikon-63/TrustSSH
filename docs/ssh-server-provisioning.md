@@ -8,7 +8,12 @@ There are three main ways to provision a Linux SSH server to trust the TrustSSH 
 3. **Fully manual** - Manually perform edit the SSH server configuration files and restart the SSH service.
 
 ### Automated Ansible Playbook
-TODO
+Automatically provision SSH servers to trust the TrustSSH CA using the `bootstrap-install.sh` script. This script will fetch the CA public key, download the Ansible playbooks from this repository, and run the playbook to configure the SSH server.
+
+```bash
+export TRUSTSSH_ENDPOINT="XXXX" # Set this to your TrustSSH API
+curl --proto '=https' --tlsv1.2 -sSfL https://raw.githubusercontent.com/nikon-63/TrustSSH/main/helpers/bootstrap-install.sh | sudo -E bash
+```
 
 ### Manual Ansible Playbook
 With in the bootstrap-tooling dir there are two ansible playbooks. The `install-trustssh-server.yml` playbook will install the TrustSSH CA public key on the server and configure SSH to trust it. The `remove-trustssh-server.yml` playbook will remove the TrustSSH CA public key and configuration.
