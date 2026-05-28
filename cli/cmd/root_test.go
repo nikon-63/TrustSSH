@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"strconv"
 	"strings"
 	"testing"
 )
@@ -32,19 +33,19 @@ func TestParseLoginDuration(t *testing.T) {
 			name:        "missing value short",
 			args:        []string{"-d"},
 			wantErr:     true,
-			errContains: "usage",
+			errContains: "usage: trustssh login [-d|--duration minutes]",
 		},
 		{
 			name:        "missing value long",
 			args:        []string{"--duration"},
 			wantErr:     true,
-			errContains: "usage",
+			errContains: "usage: trustssh login [-d|--duration minutes]",
 		},
 		{
 			name:        "unknown flag",
 			args:        []string{"--dur", "10"},
 			wantErr:     true,
-			errContains: "usage",
+			errContains: "usage: trustssh login [-d|--duration minutes]",
 		},
 		{
 			name:        "non integer",
@@ -68,7 +69,13 @@ func TestParseLoginDuration(t *testing.T) {
 			name:        "extra args",
 			args:        []string{"-d", "10", "extra"},
 			wantErr:     true,
-			errContains: "usage",
+			errContains: "usage: trustssh login [-d|--duration minutes]",
+		},
+		{
+			name:        "overflow minutes",
+			args:        []string{"-d", strconv.Itoa(int(^uint(0)>>1)/60 + 1)},
+			wantErr:     true,
+			errContains: "too large",
 		},
 	}
 
@@ -91,5 +98,11 @@ func TestParseLoginDuration(t *testing.T) {
 				t.Fatalf("expected %d seconds, got %d", tc.want, got)
 			}
 		})
+	}
+}
+
+func TestUsageTextIncludesLongDurationFlag(t *testing.T) {
+	if !strings.Contains(usageText(), "trustssh login [-d|--duration minutes]") {
+		t.Fatalf("usage text should include both duration flags, got: %q", usageText())
 	}
 }
