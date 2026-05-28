@@ -50,7 +50,7 @@ func usageText() string {
 	return fmt.Sprintf(`Usage:
   trustssh configure <base-url>
   trustssh passkeys add
-  trustssh login [-d minutes]
+  trustssh login [-d|--duration minutes]
   trustssh logout
 
 Version: %s`, Version)
@@ -61,14 +61,18 @@ func parseLoginDuration(args []string) (int, error) {
 		return 0, nil
 	}
 	if len(args) != 2 {
-		return 0, fmt.Errorf("usage: trustssh login [-d minutes]")
+		return 0, fmt.Errorf("usage: trustssh login [-d|--duration minutes]")
 	}
 	if args[0] != "-d" && args[0] != "--duration" {
-		return 0, fmt.Errorf("usage: trustssh login [-d minutes]")
+		return 0, fmt.Errorf("usage: trustssh login [-d|--duration minutes]")
 	}
 	minutes, err := strconv.Atoi(args[1])
 	if err != nil || minutes <= 0 {
-		return 0, fmt.Errorf("invalid duration minutes: %s", args[1])
+		return 0, fmt.Errorf("invalid duration minutes %q: must be a positive integer", args[1])
+	}
+	maxInt := int(^uint(0) >> 1)
+	if minutes > maxInt/60 {
+		return 0, fmt.Errorf("duration minutes %q is too large", args[1])
 	}
 	return minutes * 60, nil
 }
