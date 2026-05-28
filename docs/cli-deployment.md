@@ -23,6 +23,7 @@ Run it directly:
 ./trustssh configure https://trustssh.demo.com
 ./trustssh passkeys add
 ./trustssh login
+./trustssh login -d 30
 ./trustssh logout
 ```
 
@@ -130,6 +131,14 @@ Run:
 ```bash
 trustssh login
 ```
+
+To request a shorter or longer certificate (minutes):
+
+```bash
+trustssh login -d 30
+```
+
+The server enforces the maximum duration; the CLI only forwards your request.
 
 The CLI will:
 
