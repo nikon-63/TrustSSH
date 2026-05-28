@@ -10,7 +10,7 @@ import (
 	"github.com/nikon-63/TrustSSH/cli/internal/sshkeys"
 )
 
-func Login() error {
+func Login(requestedDurationSeconds int) error {
 	cfg, err := config.Load()
 	if err != nil {
 		return err
@@ -41,10 +41,15 @@ func Login() error {
 		return err
 	}
 
-	fmt.Printf("Requesting %d minute certificate...\n", cfg.DefaultDurationSeconds/60)
+	reqSeconds := cfg.DefaultDurationSeconds
+	if requestedDurationSeconds > 0 {
+		reqSeconds = requestedDurationSeconds
+	}
+
+	fmt.Printf("Requesting %d minute certificate...\n", reqSeconds/60)
 	certificate, err := api.IssueCertificate(cfg, result.Tokens.AccessToken, api.IssueCertificateRequest{
 		PublicKey:                publicKey,
-		RequestedDurationSeconds: cfg.DefaultDurationSeconds,
+		RequestedDurationSeconds: reqSeconds,
 	})
 	if err != nil {
 		return err

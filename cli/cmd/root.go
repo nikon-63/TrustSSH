@@ -1,6 +1,9 @@
 package cmd
 
-import "fmt"
+import (
+	"fmt"
+	"strconv"
+)
 
 var Version = "dev"
 
@@ -21,10 +24,11 @@ func Execute(args []string) error {
 		}
 		return PasskeysAdd()
 	case "login":
-		if len(args) != 1 {
-			return fmt.Errorf("usage: trustssh login")
+		durationSeconds, err := parseLoginDuration(args[1:])
+		if err != nil {
+			return err
 		}
-		return Login()
+		return Login(durationSeconds)
 	case "logout":
 		if len(args) != 1 {
 			return fmt.Errorf("usage: trustssh logout")
@@ -46,8 +50,25 @@ func usageText() string {
 	return fmt.Sprintf(`Usage:
   trustssh configure <base-url>
   trustssh passkeys add
-  trustssh login
+  trustssh login [-d minutes]
   trustssh logout
 
 Version: %s`, Version)
+}
+
+func parseLoginDuration(args []string) (int, error) {
+	if len(args) == 0 {
+		return 0, nil
+	}
+	if len(args) != 2 {
+		return 0, fmt.Errorf("usage: trustssh login [-d minutes]")
+	}
+	if args[0] != "-d" && args[0] != "--duration" {
+		return 0, fmt.Errorf("usage: trustssh login [-d minutes]")
+	}
+	minutes, err := strconv.Atoi(args[1])
+	if err != nil || minutes <= 0 {
+		return 0, fmt.Errorf("invalid duration minutes: %s", args[1])
+	}
+	return minutes * 60, nil
 }
