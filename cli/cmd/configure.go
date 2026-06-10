@@ -5,6 +5,8 @@ import (
 	"strconv"
 
 	"github.com/nikon-63/TrustSSH/cli/internal/config"
+	"github.com/nikon-63/TrustSSH/cli/internal/sshconfig"
+	"github.com/nikon-63/TrustSSH/cli/internal/sshkeys"
 )
 
 func Configure(baseURL string) error {
@@ -41,11 +43,28 @@ func ConfigureSetDefaultKey(valueArg string) error {
 	if err != nil {
 		return fmt.Errorf("invalid set-default-key value %q: %w", valueArg, err)
 	}
+
+	if enabled {
+		if _, err := sshkeys.EnsureDefaultKeyPair(); err != nil {
+			return err
+		}
+		if err := sshconfig.EnsureDefaultKey(); err != nil {
+			return err
+		}
+	} else if err := sshconfig.RemoveDefaultKey(); err != nil {
+		return err
+	}
+
 	if err := config.SetDefaultKey(enabled); err != nil {
 		return err
 	}
 
 	fmt.Printf("Set default key: %t\n", enabled)
+	if enabled {
+		fmt.Printf("Updated SSH config: %s\n", sshconfig.ConfigPath())
+	} else {
+		fmt.Printf("Removed TrustSSH default key config from: %s\n", sshconfig.ConfigPath())
+	}
 	fmt.Printf("Config saved: %s\n", config.ConfigPath())
 	return nil
 }

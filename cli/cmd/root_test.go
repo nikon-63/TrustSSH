@@ -1,6 +1,9 @@
 package cmd
 
 import (
+	"encoding/json"
+	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"testing"
@@ -202,5 +205,56 @@ func TestConfigureSetDefaultKeyRequiresValue(t *testing.T) {
 	}
 	if !strings.Contains(err.Error(), "trustssh configure --set-default-key true|false") {
 		t.Fatalf("expected configure usage error, got: %q", err.Error())
+	}
+}
+
+func TestConfigureSetDefaultKeyUpdatesConfigAndSSHConfig(t *testing.T) {
+	home := t.TempDir()
+	t.Setenv("HOME", home)
+
+	if err := Execute([]string{"configure", "--set-default-key", "true"}); err != nil {
+		t.Fatalf("Execute set-default-key true returned error: %v", err)
+	}
+
+	cfgData, err := os.ReadFile(filepath.Join(home, ".trustssh", "config.json"))
+	if err != nil {
+		t.Fatalf("read TrustSSH config: %v", err)
+	}
+	var cfg map[string]bool
+	if err := json.Unmarshal(cfgData, &cfg); err != nil {
+		t.Fatalf("parse TrustSSH config: %v", err)
+	}
+	if !cfg["set_default_key"] {
+		t.Fatal("set_default_key was not saved as true")
+	}
+
+	sshConfigPath := filepath.Join(home, ".ssh", "config")
+	sshConfig, err := os.ReadFile(sshConfigPath)
+	if err != nil {
+		t.Fatalf("read SSH config: %v", err)
+	}
+	if !strings.Contains(string(sshConfig), "IdentityFile ~/.trustssh/id_ed25519") {
+		t.Fatalf("SSH config missing TrustSSH IdentityFile:\n%s", string(sshConfig))
+	}
+
+	if err := Execute([]string{"configure", "--set-default-key", "false"}); err != nil {
+		t.Fatalf("Execute set-default-key false returned error: %v", err)
+	}
+	cfgData, err = os.ReadFile(filepath.Join(home, ".trustssh", "config.json"))
+	if err != nil {
+		t.Fatalf("read TrustSSH config after disable: %v", err)
+	}
+	if err := json.Unmarshal(cfgData, &cfg); err != nil {
+		t.Fatalf("parse TrustSSH config after disable: %v", err)
+	}
+	if cfg["set_default_key"] {
+		t.Fatal("set_default_key was not saved as false")
+	}
+	sshConfig, err = os.ReadFile(sshConfigPath)
+	if err != nil {
+		t.Fatalf("read SSH config after disable: %v", err)
+	}
+	if strings.Contains(string(sshConfig), "IdentityFile ~/.trustssh/id_ed25519") {
+		t.Fatalf("SSH config still contains TrustSSH IdentityFile:\n%s", string(sshConfig))
 	}
 }

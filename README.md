@@ -163,7 +163,20 @@ This saves:
 }
 ```
 
-When enabled, TrustSSH will use `~/.trustssh/id_ed25519` as the default key for normal SSH usage. When disabled, TrustSSH will leave the user's default SSH key configuration unchanged.
+When enabled, TrustSSH will use `~/.trustssh/id_ed25519` as the default key for normal SSH usage. When disabled, TrustSSH removes its managed default-key block and leaves the rest of the user's SSH key configuration unchanged.
+
+TrustSSH manages this through a marked block in `~/.ssh/config`:
+
+```sshconfig
+# BEGIN TrustSSH managed block
+Host *
+    IdentityFile ~/.trustssh/id_ed25519
+    IdentitiesOnly yes
+    AddKeysToAgent yes
+# END TrustSSH managed block
+```
+
+TrustSSH only adds, replaces, or removes this marked block. Existing SSH config outside the block is preserved.
 
 ### `trustssh login`
 
@@ -181,6 +194,8 @@ The command will:
 ### `trustssh logout`
 
 Removes local TrustSSH tokens and the short-lived certificate.
+
+It also removes the TrustSSH managed default-key block from `~/.ssh/config` if present.
 
 It does **not** remove the SSH key pair.
 

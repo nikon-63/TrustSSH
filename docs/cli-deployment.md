@@ -171,6 +171,19 @@ The command writes the boolean value to:
 }
 ```
 
+When enabled, TrustSSH adds or replaces this marked block in `~/.ssh/config`:
+
+```sshconfig
+# BEGIN TrustSSH managed block
+Host *
+    IdentityFile ~/.trustssh/id_ed25519
+    IdentitiesOnly yes
+    AddKeysToAgent yes
+# END TrustSSH managed block
+```
+
+TrustSSH preserves existing SSH config outside this marked block. `trustssh login` reapplies the block when `set_default_key` is `true`. `trustssh logout` removes the block.
+
 ## Login Flow
 
 Run:
@@ -244,6 +257,7 @@ Logout removes:
 ```text
 ~/.trustssh/tokens.json
 ~/.trustssh/id_ed25519-cert.pub
+TrustSSH managed block in ~/.ssh/config
 ```
 
 Logout does not remove:
