@@ -158,3 +158,39 @@ func TestSetDefaultDurationSecondsPreservesExistingConfig(t *testing.T) {
 		t.Fatalf("DefaultDurationSeconds = %d", cfg.DefaultDurationSeconds)
 	}
 }
+
+func TestSetDefaultKeyPreservesExistingConfig(t *testing.T) {
+	home := t.TempDir()
+	t.Setenv("HOME", home)
+	if err := os.MkdirAll(filepath.Join(home, ".trustssh"), 0700); err != nil {
+		t.Fatalf("create trustssh dir: %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(home, ".trustssh", "config.json"), []byte(`{
+		"region": "eu-west-2",
+		"cognito_domain": "https://example.auth.eu-west-2.amazoncognito.com",
+		"client_id": "client",
+		"redirect_uri": "http://localhost:8765/callback",
+		"api_base_url": "https://trustssh.example.com",
+		"default_duration_seconds": 1800
+	}`), 0600); err != nil {
+		t.Fatalf("write config: %v", err)
+	}
+
+	if err := SetDefaultKey(true); err != nil {
+		t.Fatalf("SetDefaultKey returned error: %v", err)
+	}
+
+	cfg, err := Load()
+	if err != nil {
+		t.Fatalf("Load returned error: %v", err)
+	}
+	if cfg.Region != "eu-west-2" {
+		t.Fatalf("Region = %q", cfg.Region)
+	}
+	if cfg.DefaultDurationSeconds != 1800 {
+		t.Fatalf("DefaultDurationSeconds = %d", cfg.DefaultDurationSeconds)
+	}
+	if !cfg.SetDefaultKey {
+		t.Fatal("SetDefaultKey = false")
+	}
+}

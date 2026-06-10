@@ -125,9 +125,44 @@ func TestParseMinutesToSeconds(t *testing.T) {
 	}
 }
 
+func TestParseStrictBool(t *testing.T) {
+	cases := []struct {
+		value string
+		want  bool
+	}{
+		{value: "true", want: true},
+		{value: "false", want: false},
+	}
+	for _, tc := range cases {
+		t.Run(tc.value, func(t *testing.T) {
+			got, err := parseStrictBool(tc.value)
+			if err != nil {
+				t.Fatalf("parseStrictBool returned error: %v", err)
+			}
+			if got != tc.want {
+				t.Fatalf("expected %t, got %t", tc.want, got)
+			}
+		})
+	}
+
+	for _, value := range []string{"TRUE", "False", "1", "yes", ""} {
+		t.Run(value, func(t *testing.T) {
+			if _, err := parseStrictBool(value); err == nil {
+				t.Fatalf("expected error for %q", value)
+			}
+		})
+	}
+}
+
 func TestUsageTextIncludesConfigureDefaultDurationFlag(t *testing.T) {
 	if !strings.Contains(usageText(), "trustssh configure --default-duration minutes") {
 		t.Fatalf("usage text should include configure default duration flag, got: %q", usageText())
+	}
+}
+
+func TestUsageTextIncludesConfigureSetDefaultKeyFlag(t *testing.T) {
+	if !strings.Contains(usageText(), "trustssh configure --set-default-key true|false") {
+		t.Fatalf("usage text should include configure set default key flag, got: %q", usageText())
 	}
 }
 
@@ -137,6 +172,16 @@ func TestConfigureDefaultDurationRequiresValue(t *testing.T) {
 		t.Fatal("expected error, got nil")
 	}
 	if !strings.Contains(err.Error(), "trustssh configure --default-duration minutes") {
+		t.Fatalf("expected configure usage error, got: %q", err.Error())
+	}
+}
+
+func TestConfigureSetDefaultKeyRequiresValue(t *testing.T) {
+	err := Execute([]string{"configure", "--set-default-key"})
+	if err == nil {
+		t.Fatal("expected error, got nil")
+	}
+	if !strings.Contains(err.Error(), "trustssh configure --set-default-key true|false") {
 		t.Fatalf("expected configure usage error, got: %q", err.Error())
 	}
 }

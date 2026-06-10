@@ -36,6 +36,20 @@ func ConfigureDefaultDuration(minutesArg string) error {
 	return nil
 }
 
+func ConfigureSetDefaultKey(valueArg string) error {
+	enabled, err := parseStrictBool(valueArg)
+	if err != nil {
+		return fmt.Errorf("invalid set-default-key value %q: %w", valueArg, err)
+	}
+	if err := config.SetDefaultKey(enabled); err != nil {
+		return err
+	}
+
+	fmt.Printf("Set default key: %t\n", enabled)
+	fmt.Printf("Config saved: %s\n", config.ConfigPath())
+	return nil
+}
+
 func parseMinutesToSeconds(minutesArg string) (int, error) {
 	minutes, err := strconv.Atoi(minutesArg)
 	if err != nil || minutes <= 0 {
@@ -46,4 +60,15 @@ func parseMinutesToSeconds(minutesArg string) (int, error) {
 		return 0, fmt.Errorf("is too large")
 	}
 	return minutes * 60, nil
+}
+
+func parseStrictBool(valueArg string) (bool, error) {
+	switch valueArg {
+	case "true":
+		return true, nil
+	case "false":
+		return false, nil
+	default:
+		return false, fmt.Errorf("must be true or false")
+	}
 }

@@ -20,6 +20,7 @@ type Config struct {
 	RedirectURI            string `json:"redirect_uri"`
 	APIBaseURL             string `json:"api_base_url"`
 	DefaultDurationSeconds int    `json:"default_duration_seconds"`
+	SetDefaultKey          bool   `json:"set_default_key"`
 }
 
 func Load() (Config, error) {
@@ -104,6 +105,14 @@ func SetDefaultDurationSeconds(seconds int) error {
 	if seconds <= 0 {
 		return fmt.Errorf("default duration seconds must be positive")
 	}
+	return updateConfigValue("default_duration_seconds", seconds)
+}
+
+func SetDefaultKey(enabled bool) error {
+	return updateConfigValue("set_default_key", enabled)
+}
+
+func updateConfigValue(key string, value any) error {
 	if err := ensureTrustSSHDir(); err != nil {
 		return err
 	}
@@ -121,7 +130,7 @@ func SetDefaultDurationSeconds(seconds int) error {
 		}
 	}
 
-	values["default_duration_seconds"] = seconds
+	values[key] = value
 	updated, err := json.MarshalIndent(values, "", "  ")
 	if err != nil {
 		return fmt.Errorf("encode config: %w", err)
