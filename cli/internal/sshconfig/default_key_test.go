@@ -25,6 +25,7 @@ func TestEnsureDefaultKeyCreatesSSHConfig(t *testing.T) {
 		beginMarker,
 		"Host *",
 		"    IdentityFile ~/.trustssh/id_ed25519",
+		"    IdentityFile ~/.ssh/id_ed25519",
 		"    IdentitiesOnly yes",
 		"    AddKeysToAgent yes",
 		endMarker,

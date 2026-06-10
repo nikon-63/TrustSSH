@@ -177,12 +177,13 @@ When enabled, TrustSSH adds or replaces this marked block in `~/.ssh/config`:
 # BEGIN TrustSSH managed block
 Host *
     IdentityFile ~/.trustssh/id_ed25519
+    IdentityFile ~/.ssh/id_ed25519
     IdentitiesOnly yes
     AddKeysToAgent yes
 # END TrustSSH managed block
 ```
 
-TrustSSH preserves existing SSH config outside this marked block. `trustssh login` reapplies the block when `set_default_key` is `true`. `trustssh logout` removes the block.
+TrustSSH lists its key first, then the user's normal `~/.ssh/id_ed25519` key as a fallback. This lets SSH try the normal user key if the TrustSSH certificate is expired or not accepted. TrustSSH preserves existing SSH config outside this marked block. `trustssh login` reapplies the block when `set_default_key` is `true`. `trustssh logout` removes the block.
 
 ## Login Flow
 

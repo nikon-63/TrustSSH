@@ -236,6 +236,9 @@ func TestConfigureSetDefaultKeyUpdatesConfigAndSSHConfig(t *testing.T) {
 	if !strings.Contains(string(sshConfig), "IdentityFile ~/.trustssh/id_ed25519") {
 		t.Fatalf("SSH config missing TrustSSH IdentityFile:\n%s", string(sshConfig))
 	}
+	if !strings.Contains(string(sshConfig), "IdentityFile ~/.ssh/id_ed25519") {
+		t.Fatalf("SSH config missing fallback IdentityFile:\n%s", string(sshConfig))
+	}
 
 	if err := Execute([]string{"configure", "--set-default-key", "false"}); err != nil {
 		t.Fatalf("Execute set-default-key false returned error: %v", err)
@@ -256,5 +259,8 @@ func TestConfigureSetDefaultKeyUpdatesConfigAndSSHConfig(t *testing.T) {
 	}
 	if strings.Contains(string(sshConfig), "IdentityFile ~/.trustssh/id_ed25519") {
 		t.Fatalf("SSH config still contains TrustSSH IdentityFile:\n%s", string(sshConfig))
+	}
+	if strings.Contains(string(sshConfig), "IdentityFile ~/.ssh/id_ed25519") {
+		t.Fatalf("SSH config still contains fallback IdentityFile from managed block:\n%s", string(sshConfig))
 	}
 }
