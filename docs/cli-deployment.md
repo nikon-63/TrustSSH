@@ -124,7 +124,6 @@ Map them into `config.json`:
 | `redirect_uri` | `callback_url` |
 | `api_base_url` | `api_base_url` |
 | `default_duration_seconds` | `1800` |
-| `set_default_key` | `true` or `false` |
 
 `cli_config_url` is the static config document fetched by `trustssh configure`.
 
