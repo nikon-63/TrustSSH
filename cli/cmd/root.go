@@ -20,15 +20,13 @@ func Execute(args []string) error {
 		if len(args) == 3 && args[1] == "--set-default-key" {
 			return ConfigureSetDefaultKey(args[2])
 		}
+		if len(args) == 2 && args[1] == "--passkey-add" {
+			return PasskeysAdd()
+		}
 		if len(args) == 2 && args[1] != "--default-duration" && args[1] != "--set-default-key" {
 			return Configure(args[1])
 		}
-		return fmt.Errorf("usage: trustssh configure <base-url>\n       trustssh configure --default-duration minutes\n       trustssh configure --set-default-key true|false")
-	case "passkeys":
-		if len(args) != 2 || args[1] != "add" {
-			return fmt.Errorf("usage: trustssh passkeys add")
-		}
-		return PasskeysAdd()
+		return configureUsageError()
 	case "login":
 		durationSeconds, err := parseLoginDuration(args[1:])
 		if err != nil {
@@ -57,11 +55,15 @@ func usageText() string {
   trustssh configure <base-url>
   trustssh configure --default-duration minutes
   trustssh configure --set-default-key true|false
-  trustssh passkeys add
+  trustssh configure --passkey-add
   trustssh login [-d|--duration minutes]
   trustssh logout
 
 Version: %s`, Version)
+}
+
+func configureUsageError() error {
+	return fmt.Errorf("usage: trustssh configure <base-url>\n       trustssh configure --default-duration minutes\n       trustssh configure --set-default-key true|false\n       trustssh configure --passkey-add")
 }
 
 func parseLoginDuration(args []string) (int, error) {

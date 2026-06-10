@@ -166,6 +166,15 @@ func TestUsageTextIncludesConfigureSetDefaultKeyFlag(t *testing.T) {
 	}
 }
 
+func TestUsageTextIncludesConfigurePasskeyAddFlag(t *testing.T) {
+	if !strings.Contains(usageText(), "trustssh configure --passkey-add") {
+		t.Fatalf("usage text should include configure passkey add flag, got: %q", usageText())
+	}
+	if strings.Contains(usageText(), "trustssh passkeys add") {
+		t.Fatalf("usage text should not include old passkeys command, got: %q", usageText())
+	}
+}
+
 func TestConfigureDefaultDurationRequiresValue(t *testing.T) {
 	err := Execute([]string{"configure", "--default-duration"})
 	if err == nil {
@@ -173,6 +182,16 @@ func TestConfigureDefaultDurationRequiresValue(t *testing.T) {
 	}
 	if !strings.Contains(err.Error(), "trustssh configure --default-duration minutes") {
 		t.Fatalf("expected configure usage error, got: %q", err.Error())
+	}
+}
+
+func TestOldPasskeysCommandIsRemoved(t *testing.T) {
+	err := Execute([]string{"passkeys", "add"})
+	if err == nil {
+		t.Fatal("expected error, got nil")
+	}
+	if !strings.Contains(err.Error(), `unknown command "passkeys"`) {
+		t.Fatalf("expected unknown command error, got: %q", err.Error())
 	}
 }
 
