@@ -100,6 +100,38 @@ func Save(cfg Config) error {
 	return os.Chmod(ConfigPath(), 0600)
 }
 
+func SetDefaultDurationSeconds(seconds int) error {
+	if seconds <= 0 {
+		return fmt.Errorf("default duration seconds must be positive")
+	}
+	if err := ensureTrustSSHDir(); err != nil {
+		return err
+	}
+
+	values := map[string]any{}
+	path := ConfigPath()
+	data, err := os.ReadFile(path)
+	if err != nil {
+		if !errors.Is(err, os.ErrNotExist) {
+			return fmt.Errorf("read config: %w", err)
+		}
+	} else if len(strings.TrimSpace(string(data))) > 0 {
+		if err := json.Unmarshal(data, &values); err != nil {
+			return fmt.Errorf("parse config: %w", err)
+		}
+	}
+
+	values["default_duration_seconds"] = seconds
+	updated, err := json.MarshalIndent(values, "", "  ")
+	if err != nil {
+		return fmt.Errorf("encode config: %w", err)
+	}
+	if err := os.WriteFile(path, append(updated, '\n'), 0600); err != nil {
+		return fmt.Errorf("write config: %w", err)
+	}
+	return os.Chmod(path, 0600)
+}
+
 func TrustSSHDir() string {
 	home, err := os.UserHomeDir()
 	if err != nil {

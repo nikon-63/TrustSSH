@@ -106,3 +106,37 @@ func TestUsageTextIncludesLongDurationFlag(t *testing.T) {
 		t.Fatalf("usage text should include both duration flags, got: %q", usageText())
 	}
 }
+
+func TestParseMinutesToSeconds(t *testing.T) {
+	got, err := parseMinutesToSeconds("25")
+	if err != nil {
+		t.Fatalf("parseMinutesToSeconds returned error: %v", err)
+	}
+	if got != 1500 {
+		t.Fatalf("expected 1500 seconds, got %d", got)
+	}
+
+	for _, value := range []string{"0", "-1", "abc", strconv.Itoa(int(^uint(0)>>1)/60 + 1)} {
+		t.Run(value, func(t *testing.T) {
+			if _, err := parseMinutesToSeconds(value); err == nil {
+				t.Fatalf("expected error for %q", value)
+			}
+		})
+	}
+}
+
+func TestUsageTextIncludesConfigureDefaultDurationFlag(t *testing.T) {
+	if !strings.Contains(usageText(), "trustssh configure --default-duration minutes") {
+		t.Fatalf("usage text should include configure default duration flag, got: %q", usageText())
+	}
+}
+
+func TestConfigureDefaultDurationRequiresValue(t *testing.T) {
+	err := Execute([]string{"configure", "--default-duration"})
+	if err == nil {
+		t.Fatal("expected error, got nil")
+	}
+	if !strings.Contains(err.Error(), "trustssh configure --default-duration minutes") {
+		t.Fatalf("expected configure usage error, got: %q", err.Error())
+	}
+}
