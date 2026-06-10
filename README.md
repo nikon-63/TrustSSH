@@ -90,7 +90,9 @@ See the deployment guides for full setup instructions:
 
 ```bash
 trustssh configure <base-url>
-trustssh passkeys add
+trustssh configure --default-duration minutes
+trustssh configure --set-default-key true|false
+trustssh configure --passkey-add
 trustssh login
 trustssh logout
 ```
@@ -115,6 +117,54 @@ Example:
 trustssh configure https://trustssh.demo.com
 ```
 
+### `trustssh configure --default-duration minutes`
+
+Sets the default certificate request duration in `~/.trustssh/config.json`.
+
+The value is supplied in minutes and saved as seconds in the JSON field:
+
+```json
+{
+  "default_duration_seconds": 1800
+}
+```
+
+Example:
+
+```bash
+trustssh configure --default-duration 45
+```
+
+This saves:
+
+```json
+{
+  "default_duration_seconds": 2700
+}
+```
+
+The backend still enforces the maximum certificate lifetime.
+
+### `trustssh configure --set-default-key true|false`
+
+Controls whether TrustSSH should set the TrustSSH SSH key as the user's default SSH key.
+
+Example:
+
+```bash
+trustssh configure --set-default-key true
+```
+
+This saves:
+
+```json
+{
+  "set_default_key": true
+}
+```
+
+When enabled, TrustSSH will use `~/.trustssh/id_ed25519` as the default key for normal SSH usage. When disabled, TrustSSH will leave the user's default SSH key configuration unchanged.
+
 ### `trustssh login`
 
 Starts the login flow and requests a short-lived SSH certificate.
@@ -134,7 +184,7 @@ Removes local TrustSSH tokens and the short-lived certificate.
 
 It does **not** remove the SSH key pair.
 
-### `trustssh passkeys add`
+### `trustssh configure --passkey-add`
 
 Registers a passkey for the current user where passkey support is enabled by the deployed authentication flow.
 

@@ -21,7 +21,9 @@ Run it directly:
 
 ```bash
 ./trustssh configure https://trustssh.demo.com
-./trustssh passkeys add
+./trustssh configure --default-duration 30
+./trustssh configure --set-default-key true
+./trustssh configure --passkey-add
 ./trustssh login
 ./trustssh login -d 30
 ./trustssh logout
@@ -87,7 +89,8 @@ You can also create `~/.trustssh/config.json` manually from Terraform outputs:
   "client_id": "the-cognito-client-id",
   "redirect_uri": "http://localhost:8765/callback",
   "api_base_url": "https://trustssh.demo.com",
-  "default_duration_seconds": 1800
+  "default_duration_seconds": 1800,
+  "set_default_key": true
 }
 ```
 
@@ -121,8 +124,53 @@ Map them into `config.json`:
 | `redirect_uri` | `callback_url` |
 | `api_base_url` | `api_base_url` |
 | `default_duration_seconds` | `1800` |
+| `set_default_key` | `true` or `false` |
 
 `cli_config_url` is the static config document fetched by `trustssh configure`.
+
+## Configure CLI Settings
+
+The `configure` command can fetch the generated backend config and update local settings in `~/.trustssh/config.json`.
+
+Fetch the generated config:
+
+```bash
+trustssh configure https://trustssh.demo.com
+```
+
+Set the default certificate duration. The command accepts minutes and writes seconds to `default_duration_seconds`:
+
+```bash
+trustssh configure --default-duration 45
+```
+
+This writes:
+
+```json
+{
+  "default_duration_seconds": 2700
+}
+```
+
+Set whether TrustSSH should make `~/.trustssh/id_ed25519` the default SSH key for normal SSH usage:
+
+```bash
+trustssh configure --set-default-key true
+```
+
+Use `false` to leave the user's default SSH key configuration unchanged:
+
+```bash
+trustssh configure --set-default-key false
+```
+
+The command writes the boolean value to:
+
+```json
+{
+  "set_default_key": true
+}
+```
 
 ## Login Flow
 
@@ -157,7 +205,7 @@ The CLI will:
 To add a passkey, run:
 
 ```bash
-trustssh passkeys add
+trustssh configure --passkey-add
 ```
 
 This opens the Cognito managed login passkey enrollment page using the
