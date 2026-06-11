@@ -23,12 +23,12 @@ func EnsureDefaultKey() error {
 		return fmt.Errorf("read SSH config: %w", err)
 	}
 
-	content := removeManagedBlock(string(existing))
-	content = strings.TrimRight(content, "\n")
-	if content != "" {
-		content += "\n\n"
+	userContent := strings.Trim(removeManagedBlock(string(existing)), "\r\n")
+	content := strings.TrimRight(managedBlock(), "\n")
+	if userContent != "" {
+		content += "\n\n" + userContent
 	}
-	content += managedBlock()
+	content += "\n"
 
 	if err := os.WriteFile(path, []byte(content), 0600); err != nil {
 		return fmt.Errorf("write SSH config: %w", err)

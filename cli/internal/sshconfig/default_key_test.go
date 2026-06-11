@@ -21,6 +21,9 @@ func TestEnsureDefaultKeyCreatesSSHConfig(t *testing.T) {
 		t.Fatalf("read SSH config: %v", err)
 	}
 	content := string(data)
+	if !strings.HasPrefix(content, beginMarker+"\n") {
+		t.Fatalf("SSH config should start with managed block:\n%s", content)
+	}
 	for _, want := range []string{
 		beginMarker,
 		"Host *",
@@ -82,6 +85,12 @@ Host example.com
 	if strings.Count(content, beginMarker) != 1 {
 		t.Fatalf("expected one managed block, got:\n%s", content)
 	}
+	if !strings.HasPrefix(content, beginMarker+"\n") {
+		t.Fatalf("managed block should be first:\n%s", content)
+	}
+	if strings.Index(content, "Host github.com") < strings.Index(content, endMarker) {
+		t.Fatalf("user config should be below managed block:\n%s", content)
+	}
 }
 
 func TestRemoveDefaultKeyRemovesOnlyManagedBlock(t *testing.T) {
@@ -139,6 +148,9 @@ func TestEnsureDefaultKeyRemovesMultipleExistingManagedBlocks(t *testing.T) {
 	content := string(data)
 	if strings.Count(content, beginMarker) != 1 || strings.Count(content, endMarker) != 1 {
 		t.Fatalf("expected one managed block after rewrite:\n%s", content)
+	}
+	if !strings.HasPrefix(content, beginMarker+"\n") {
+		t.Fatalf("managed block should be first after rewrite:\n%s", content)
 	}
 	for _, want := range []string{"Host before", "Host middle", "Host after"} {
 		if !strings.Contains(content, want) {

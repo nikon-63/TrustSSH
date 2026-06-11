@@ -177,7 +177,7 @@ Host *
 # END TrustSSH managed block
 ```
 
-TrustSSH lists its key first, then the user's normal `~/.ssh/id_ed25519` key as a fallback. This lets SSH try the normal user key if the TrustSSH certificate is expired or not accepted. TrustSSH only adds, replaces, or removes this marked block. Existing SSH config outside the block is preserved.
+TrustSSH places this block at the top of `~/.ssh/config`, lists its key first, then the user's normal `~/.ssh/id_ed25519` key as a fallback. This lets SSH try the normal user key if the TrustSSH certificate is expired or not accepted. TrustSSH only adds, replaces, or removes this marked block. Existing SSH config outside the block is preserved below it.
 
 ### `trustssh login`
 
