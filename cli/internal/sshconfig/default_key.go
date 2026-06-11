@@ -88,25 +88,34 @@ func managedBlock() string {
 }
 
 func removeManagedBlock(content string) string {
-	start := strings.Index(content, beginMarker)
-	if start == -1 {
-		return content
-	}
+	var cleaned strings.Builder
+	remaining := content
 
-	end := strings.Index(content[start:], endMarker)
-	if end == -1 {
-		return content
-	}
-	end += start + len(endMarker)
-	if end < len(content) && content[end] == '\r' {
-		end++
-	}
-	if end < len(content) && content[end] == '\n' {
-		end++
-	}
-	if end < len(content) && content[end] == '\n' {
-		end++
-	}
+	for {
+		start := strings.Index(remaining, beginMarker)
+		if start == -1 {
+			cleaned.WriteString(remaining)
+			return cleaned.String()
+		}
 
-	return content[:start] + content[end:]
+		cleaned.WriteString(remaining[:start])
+		afterStart := remaining[start:]
+		end := strings.Index(afterStart, endMarker)
+		if end == -1 {
+			return cleaned.String()
+		}
+
+		next := end + len(endMarker)
+		if next < len(afterStart) && afterStart[next] == '\r' {
+			next++
+		}
+		if next < len(afterStart) && afterStart[next] == '\n' {
+			next++
+		}
+		if next < len(afterStart) && afterStart[next] == '\n' {
+			next++
+		}
+
+		remaining = afterStart[next:]
+	}
 }

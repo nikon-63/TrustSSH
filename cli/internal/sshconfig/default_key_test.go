@@ -115,6 +115,74 @@ func TestRemoveDefaultKeyRemovesOnlyManagedBlock(t *testing.T) {
 	assertMode(t, configPath, 0600)
 }
 
+func TestEnsureDefaultKeyRemovesMultipleExistingManagedBlocks(t *testing.T) {
+	home := t.TempDir()
+	t.Setenv("HOME", home)
+	sshDir := filepath.Join(home, ".ssh")
+	if err := os.MkdirAll(sshDir, 0700); err != nil {
+		t.Fatalf("create SSH dir: %v", err)
+	}
+	configPath := filepath.Join(sshDir, "config")
+	existing := "Host before\n    User git\n\n" + managedBlock() + "\nHost middle\n    User ubuntu\n\n" + managedBlock() + "\nHost after\n    User ec2-user\n"
+	if err := os.WriteFile(configPath, []byte(existing), 0600); err != nil {
+		t.Fatalf("write SSH config: %v", err)
+	}
+
+	if err := EnsureDefaultKey(); err != nil {
+		t.Fatalf("EnsureDefaultKey returned error: %v", err)
+	}
+
+	data, err := os.ReadFile(configPath)
+	if err != nil {
+		t.Fatalf("read SSH config: %v", err)
+	}
+	content := string(data)
+	if strings.Count(content, beginMarker) != 1 || strings.Count(content, endMarker) != 1 {
+		t.Fatalf("expected one managed block after rewrite:\n%s", content)
+	}
+	for _, want := range []string{"Host before", "Host middle", "Host after"} {
+		if !strings.Contains(content, want) {
+			t.Fatalf("user config %q was not preserved:\n%s", want, content)
+		}
+	}
+}
+
+func TestRemoveDefaultKeyDropsUnterminatedManagedBlock(t *testing.T) {
+	home := t.TempDir()
+	t.Setenv("HOME", home)
+	sshDir := filepath.Join(home, ".ssh")
+	if err := os.MkdirAll(sshDir, 0700); err != nil {
+		t.Fatalf("create SSH dir: %v", err)
+	}
+	configPath := filepath.Join(sshDir, "config")
+	existing := `Host github.com
+    IdentityFile ~/.ssh/github
+
+# BEGIN TrustSSH managed block
+Host *
+    IdentityFile ~/.trustssh/id_ed25519
+`
+	if err := os.WriteFile(configPath, []byte(existing), 0600); err != nil {
+		t.Fatalf("write SSH config: %v", err)
+	}
+
+	if err := RemoveDefaultKey(); err != nil {
+		t.Fatalf("RemoveDefaultKey returned error: %v", err)
+	}
+
+	data, err := os.ReadFile(configPath)
+	if err != nil {
+		t.Fatalf("read SSH config: %v", err)
+	}
+	content := string(data)
+	if strings.Contains(content, beginMarker) || strings.Contains(content, "IdentityFile ~/.trustssh/id_ed25519") {
+		t.Fatalf("unterminated managed block was not removed:\n%s", content)
+	}
+	if !strings.Contains(content, "Host github.com") {
+		t.Fatalf("user config before unterminated block was not preserved:\n%s", content)
+	}
+}
+
 func TestRemoveDefaultKeyIgnoresMissingConfig(t *testing.T) {
 	home := t.TempDir()
 	t.Setenv("HOME", home)
