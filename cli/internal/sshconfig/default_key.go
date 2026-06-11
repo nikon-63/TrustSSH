@@ -47,7 +47,7 @@ func RemoveDefaultKey() error {
 	}
 
 	content := removeManagedBlock(string(existing))
-	content = strings.TrimRight(content, "\n")
+	content = strings.TrimRight(content, "\r\n")
 	if content != "" {
 		content += "\n"
 	}
