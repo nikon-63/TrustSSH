@@ -23,10 +23,15 @@ func Logout() error {
 		fmt.Printf("Removed local tokens: %s\n", tokensPath)
 	}
 
+	sshPath := sshconfig.ConfigPath()
+	_, statErr := os.Stat(sshPath)
+
 	if err := sshconfig.RemoveDefaultKey(); err != nil {
 		return err
 	}
-	fmt.Printf("Removed TrustSSH default key config from: %s\n", sshconfig.ConfigPath())
+	if statErr == nil {
+		fmt.Printf("Removed TrustSSH default key config from: %s\n", sshPath)
+	}
 
 	if err := os.Remove(certPath); err != nil {
 		if errors.Is(err, os.ErrNotExist) {
