@@ -2,14 +2,24 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 	"strconv"
+	"time"
 
 	"github.com/nikon-63/TrustSSH/cli/internal/config"
 	"github.com/nikon-63/TrustSSH/cli/internal/sshconfig"
 	"github.com/nikon-63/TrustSSH/cli/internal/sshkeys"
 )
 
+var configureOverwriteDelay = 5 * time.Second
+
 func Configure(baseURL string) error {
+	if localConfigExists() {
+		fmt.Printf("Warning: %s already exists and will be overwritten, including any local settings such as default_duration_seconds and set_default_key.\n", config.ConfigPath())
+		fmt.Printf("Press Ctrl+C within %d seconds to cancel.\n", int(configureOverwriteDelay/time.Second))
+		time.Sleep(configureOverwriteDelay)
+	}
+
 	cfg, sourceURL, err := config.FetchRemote(baseURL)
 	if err != nil {
 		return err
@@ -22,6 +32,11 @@ func Configure(baseURL string) error {
 	fmt.Printf("Fetched config: %s\n", sourceURL)
 	fmt.Printf("Config saved: %s\n", config.ConfigPath())
 	return nil
+}
+
+func localConfigExists() bool {
+	_, err := os.Stat(config.ConfigPath())
+	return err == nil
 }
 
 func ConfigureDefaultDuration(minutesArg string) error {
