@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/nikon-63/TrustSSH/cli/internal/config"
+	"github.com/nikon-63/TrustSSH/cli/internal/sshconfig"
 )
 
 func Logout() error {
@@ -20,6 +21,16 @@ func Logout() error {
 		}
 	} else {
 		fmt.Printf("Removed local tokens: %s\n", tokensPath)
+	}
+
+	sshPath := sshconfig.ConfigPath()
+	_, statErr := os.Stat(sshPath)
+
+	if err := sshconfig.RemoveDefaultKey(); err != nil {
+		return err
+	}
+	if statErr == nil {
+		fmt.Printf("Removed TrustSSH default key config from: %s\n", sshPath)
 	}
 
 	if err := os.Remove(certPath); err != nil {

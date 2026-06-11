@@ -90,7 +90,9 @@ See the deployment guides for full setup instructions:
 
 ```bash
 trustssh configure <base-url>
-trustssh passkeys add
+trustssh configure --default-duration minutes
+trustssh configure --set-default-key true|false
+trustssh configure --passkey-add
 trustssh login
 trustssh logout
 ```
@@ -115,6 +117,68 @@ Example:
 trustssh configure https://trustssh.demo.com
 ```
 
+### `trustssh configure --default-duration minutes`
+
+Sets the default certificate request duration in `~/.trustssh/config.json`.
+
+The value is supplied in minutes and saved as seconds in the JSON field:
+
+```json
+{
+  "default_duration_seconds": 1800
+}
+```
+
+Example:
+
+```bash
+trustssh configure --default-duration 45
+```
+
+This saves:
+
+```json
+{
+  "default_duration_seconds": 2700
+}
+```
+
+The backend still enforces the maximum certificate lifetime.
+
+### `trustssh configure --set-default-key true|false`
+
+Controls whether TrustSSH should set the TrustSSH SSH key as the user's default SSH key.
+
+Example:
+
+```bash
+trustssh configure --set-default-key true
+```
+
+This saves:
+
+```json
+{
+  "set_default_key": true
+}
+```
+
+When enabled, TrustSSH will use `~/.trustssh/id_ed25519` as the default key for normal SSH usage. When disabled, TrustSSH removes its managed default-key block and leaves the rest of the user's SSH key configuration unchanged.
+
+TrustSSH manages this through a marked block in `~/.ssh/config`:
+
+```sshconfig
+# BEGIN TrustSSH managed block
+Host *
+    IdentityFile ~/.trustssh/id_ed25519
+    IdentityFile ~/.ssh/id_ed25519
+    IdentitiesOnly yes
+    AddKeysToAgent yes
+# END TrustSSH managed block
+```
+
+TrustSSH places this block at the top of `~/.ssh/config`, lists its key first, then the user's normal `~/.ssh/id_ed25519` key as a fallback. This lets SSH try the normal user key if the TrustSSH certificate is expired or not accepted. TrustSSH only adds, replaces, or removes this marked block. Existing SSH config outside the block is preserved below it.
+
 ### `trustssh login`
 
 Starts the login flow and requests a short-lived SSH certificate.
@@ -132,9 +196,11 @@ The command will:
 
 Removes local TrustSSH tokens and the short-lived certificate.
 
+It also removes the TrustSSH managed default-key block from `~/.ssh/config` if present.
+
 It does **not** remove the SSH key pair.
 
-### `trustssh passkeys add`
+### `trustssh configure --passkey-add`
 
 Registers a passkey for the current user where passkey support is enabled by the deployed authentication flow.
 

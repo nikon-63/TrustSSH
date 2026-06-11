@@ -7,6 +7,7 @@ import (
 	"github.com/nikon-63/TrustSSH/cli/internal/api"
 	"github.com/nikon-63/TrustSSH/cli/internal/auth"
 	"github.com/nikon-63/TrustSSH/cli/internal/config"
+	"github.com/nikon-63/TrustSSH/cli/internal/sshconfig"
 	"github.com/nikon-63/TrustSSH/cli/internal/sshkeys"
 )
 
@@ -34,6 +35,11 @@ func Login(requestedDurationSeconds int) error {
 	keyPair, err := sshkeys.EnsureDefaultKeyPair()
 	if err != nil {
 		return err
+	}
+	if cfg.SetDefaultKey {
+		if err := sshconfig.EnsureDefaultKey(); err != nil {
+			return err
+		}
 	}
 
 	publicKey, err := sshkeys.ReadPublicKey(keyPair)

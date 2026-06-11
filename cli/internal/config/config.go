@@ -20,6 +20,7 @@ type Config struct {
 	RedirectURI            string `json:"redirect_uri"`
 	APIBaseURL             string `json:"api_base_url"`
 	DefaultDurationSeconds int    `json:"default_duration_seconds"`
+	SetDefaultKey          bool   `json:"set_default_key"`
 }
 
 func Load() (Config, error) {
@@ -98,6 +99,46 @@ func Save(cfg Config) error {
 		return fmt.Errorf("write config: %w", err)
 	}
 	return os.Chmod(ConfigPath(), 0600)
+}
+
+func SetDefaultDurationSeconds(seconds int) error {
+	if seconds <= 0 {
+		return fmt.Errorf("default duration seconds must be positive")
+	}
+	return updateConfigValue("default_duration_seconds", seconds)
+}
+
+func SetDefaultKey(enabled bool) error {
+	return updateConfigValue("set_default_key", enabled)
+}
+
+func updateConfigValue(key string, value any) error {
+	if err := ensureTrustSSHDir(); err != nil {
+		return err
+	}
+
+	values := map[string]any{}
+	path := ConfigPath()
+	data, err := os.ReadFile(path)
+	if err != nil {
+		if !errors.Is(err, os.ErrNotExist) {
+			return fmt.Errorf("read config: %w", err)
+		}
+	} else if len(strings.TrimSpace(string(data))) > 0 {
+		if err := json.Unmarshal(data, &values); err != nil {
+			return fmt.Errorf("parse config: %w", err)
+		}
+	}
+
+	values[key] = value
+	updated, err := json.MarshalIndent(values, "", "  ")
+	if err != nil {
+		return fmt.Errorf("encode config: %w", err)
+	}
+	if err := os.WriteFile(path, append(updated, '\n'), 0600); err != nil {
+		return fmt.Errorf("write config: %w", err)
+	}
+	return os.Chmod(path, 0600)
 }
 
 func TrustSSHDir() string {
