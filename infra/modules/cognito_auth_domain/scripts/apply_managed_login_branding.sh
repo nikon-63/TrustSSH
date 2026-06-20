@@ -50,13 +50,14 @@ jq -n \
     Assets: [
       {
         Category: "FORM_LOGO",
-        ColorMode: "DYNAMIC",
+        ColorMode: "LIGHT",
         Extension: "PNG",
         Bytes: $logo_base64
       }
     ]
   }' > "$request_file"
 
+echo "Updating Cognito Managed Login branding with LIGHT form logo..."
 aws cognito-idp update-managed-login-branding \
   --region "$region" \
   --cli-input-json "file://$request_file" \
