@@ -70,6 +70,8 @@ module "cognito_auth_domain" {
   domain_name                = "${var.auth_subdomain}.${var.base_domain}"
   user_pool_id               = module.cognito.user_pool_id
   client_id                  = module.cognito.user_pool_client_id
+  branding_settings_file     = "${path.module}/modules/cognito_auth_domain/branding/settings.json"
+  branding_logo_file         = "${path.module}/modules/cognito_auth_domain/branding/assets/form-logo.png"
   callback_urls              = [var.callback_url]
   webauthn_user_verification = "required"
 }

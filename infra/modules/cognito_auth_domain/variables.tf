@@ -28,6 +28,16 @@ variable "client_id" {
   type        = string
 }
 
+variable "branding_settings_file" {
+  description = "Path to the JSON file containing Cognito Managed Login branding settings."
+  type        = string
+}
+
+variable "branding_logo_file" {
+  description = "Path to the PNG logo displayed on the Cognito Managed Login form."
+  type        = string
+}
+
 variable "callback_urls" {
   description = "Allowed OAuth callback URLs for hosted UI links."
   type        = list(string)
