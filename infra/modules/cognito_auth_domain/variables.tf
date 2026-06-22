@@ -38,6 +38,11 @@ variable "branding_logo_file" {
   type        = string
 }
 
+variable "branding_background_file" {
+  description = "Path to the PNG image displayed as the Cognito Managed Login page background."
+  type        = string
+}
+
 variable "callback_urls" {
   description = "Allowed OAuth callback URLs for hosted UI links."
   type        = list(string)

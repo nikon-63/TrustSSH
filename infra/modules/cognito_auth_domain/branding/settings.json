@@ -1,5 +1,10 @@
 {
   "components": {
+    "pageBackground": {
+      "image": {
+        "enabled": true
+      }
+    },
     "form": {
       "logo": {
         "enabled": true,

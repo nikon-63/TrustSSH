@@ -66,15 +66,28 @@ resource "aws_route53_record" "auth" {
 
 resource "terraform_data" "managed_login_branding" {
   triggers_replace = {
-    client_id     = var.client_id
-    user_pool_id  = var.user_pool_id
-    settings_hash = filesha256(var.branding_settings_file)
-    logo_hash     = filesha256(var.branding_logo_file)
-    script_hash   = filesha256("${path.module}/scripts/apply_managed_login_branding.sh")
+    client_id       = var.client_id
+    user_pool_id    = var.user_pool_id
+    settings_hash   = filesha256(var.branding_settings_file)
+    logo_hash       = filesha256(var.branding_logo_file)
+    background_hash = filesha256(var.branding_background_file)
+    script_hash     = filesha256("${path.module}/scripts/apply_managed_login_branding.sh")
   }
 
   provisioner "local-exec" {
-    command = "${path.module}/scripts/apply_managed_login_branding.sh '${var.aws_region}' '${var.user_pool_id}' '${var.client_id}' '${var.branding_settings_file}' '${var.branding_logo_file}'"
+    command = "${path.module}/scripts/apply_managed_login_branding.sh '${var.aws_region}' '${var.user_pool_id}' '${var.client_id}' '${var.branding_settings_file}' '${var.branding_logo_file}' '${var.branding_background_file}'"
+  }
+
+  lifecycle {
+    precondition {
+      condition     = length(filebase64(var.branding_logo_file)) <= 682668
+      error_message = "The Cognito form logo must be no larger than 512,000 bytes."
+    }
+
+    precondition {
+      condition     = length(filebase64(var.branding_background_file)) <= 1333336
+      error_message = "The Cognito page background must be no larger than 1,000,000 bytes."
+    }
   }
 
   depends_on = [

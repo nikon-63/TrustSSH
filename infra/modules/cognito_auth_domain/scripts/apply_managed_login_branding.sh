@@ -7,6 +7,7 @@ user_pool_id="$2"
 client_id="$3"
 settings_file="$4"
 logo_file="$5"
+background_file="$6"
 
 branding_id="$(
   aws cognito-idp describe-managed-login-branding-by-client \
@@ -43,6 +44,7 @@ jq -n \
   --arg branding_id "$branding_id" \
   --argjson settings "$(jq -c . "$settings_file")" \
   --rawfile logo_base64 <(base64 < "$logo_file" | tr -d '\n') \
+  --rawfile background_base64 <(base64 < "$background_file" | tr -d '\n') \
   '{
     UserPoolId: $user_pool_id,
     ManagedLoginBrandingId: $branding_id,
@@ -53,11 +55,17 @@ jq -n \
         ColorMode: "LIGHT",
         Extension: "PNG",
         Bytes: $logo_base64
+      },
+      {
+        Category: "PAGE_BACKGROUND",
+        ColorMode: "LIGHT",
+        Extension: "PNG",
+        Bytes: $background_base64
       }
     ]
   }' > "$request_file"
 
-echo "Updating Cognito Managed Login branding with LIGHT form logo..."
+echo "Updating Cognito Managed Login branding with logo and page background..."
 aws cognito-idp update-managed-login-branding \
   --region "$region" \
   --cli-input-json "file://$request_file" \
