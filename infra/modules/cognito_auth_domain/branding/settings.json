@@ -1,0 +1,17 @@
+{
+  "components": {
+    "pageBackground": {
+      "image": {
+        "enabled": true
+      }
+    },
+    "form": {
+      "logo": {
+        "enabled": true,
+        "formInclusion": "IN",
+        "location": "CENTER",
+        "position": "TOP"
+      }
+    }
+  }
+}
